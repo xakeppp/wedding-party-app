@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        /* Все стили остаются те же */
         * {
             margin: 0;
             padding: 0;
@@ -205,11 +204,13 @@
             justify-content: center;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
+            cursor: pointer;
         }
 
         .user-name {
             font-weight: bold;
             font-size: 18px;
+            cursor: pointer;
         }
 
         .badge {
@@ -300,6 +301,7 @@
             border-radius: 15px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             animation: slideIn 0.3s ease;
+            cursor: pointer;
         }
 
         @keyframes slideIn {
@@ -329,6 +331,8 @@
         .message-user {
             font-weight: bold;
             font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
         }
 
         .message.own .message-user {
@@ -763,6 +767,60 @@
             color: #333;
         }
 
+        /* Таблица лидеров */
+        .leaderboard {
+            display: grid;
+            gap: 10px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-rank {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .leaderboard-rank.gold {
+            color: #ffd700;
+        }
+
+        .leaderboard-rank.silver {
+            color: #c0c0c0;
+        }
+
+        .leaderboard-rank.bronze {
+            color: #cd7f32;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .leaderboard-stats {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .leaderboard-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
         @media (max-width: 640px) {
             .screen {
                 margin: 0;
@@ -785,7 +843,6 @@
     </style>
 </head>
 <body>
-    <!-- Экраны и модальные окна -->
     <div id="loginScreen" class="screen">
         <div class="login-box">
             <div class="wedding-icon">💍</div>
@@ -829,9 +886,9 @@
     <div id="mainScreen" class="screen" style="display:none">
         <div class="header">
             <div class="user-info">
-                <span id="userEmoji" class="user-emoji"></span>
+                <span id="userEmoji" class="user-emoji" onclick="showUserInfo()"></span>
                 <div>
-                    <div class="user-name" id="displayName"></div>
+                    <div class="user-name" id="displayName" onclick="showUserInfo()"></div>
                     <span id="adminBadge" class="badge" style="display:none">⭐ Организатор</span>
                 </div>
             </div>
@@ -848,6 +905,10 @@
             <button class="tab" onclick="switchTab('games')">
                 <span class="tab-icon">🎮</span>
                 <span>Игры</span>
+            </button>
+            <button class="tab" onclick="switchTab('leaders')">
+                <span class="tab-icon">🏆</span>
+                <span>Лидеры</span>
             </button>
             <button class="tab" onclick="switchTab('shop')">
                 <span class="tab-icon">🛍️</span>
@@ -871,7 +932,8 @@
                     <button onclick="quickMessage('Горько! 🎉')" class="quick-btn">🎉 Горько!</button>
                     <button onclick="quickMessage('Поздравляю! 🥂')" class="quick-btn">🥂 Поздравляю!</button>
                     <button onclick="quickMessage('Совет да любовь! ❤️')" class="quick-btn">❤️ Любви!</button>
-                    <button onclick="generateToast()" class="quick-btn">🎤 Тост (50🪙)</button>
+                    <button onclick="generateToast()" class="quick-btn">🎤 Тост</button>
+                    <button onclick="startChatGame()" class="quick-btn">🎲 Чат-игра</button>
                 </div>
                 
                 <div class="message-input">
@@ -920,6 +982,11 @@
             </div>
         </div>
 
+        <div id="leadersTab" class="tab-content" style="display:none">
+            <h2 class="section-title">🏆 Таблица лидеров</h2>
+            <div id="leaderboard" class="leaderboard"></div>
+        </div>
+
         <div id="shopTab" class="tab-content" style="display:none">
             <h2 class="section-title">🛍️ Магазин</h2>
             <div class="shop-grid" id="shopItems"></div>
@@ -950,7 +1017,7 @@
             
             <div class="profile-section">
                 <h3>✏️ О себе</h3>
-                <textarea id="aboutMe" class="about-me" placeholder="Расскажи о себе, как ты знаешь молодоженов, любимый тост..." maxlength="500"></textarea>
+                <textarea id="aboutMe" class="about-me" placeholder="Расскажи о себе..." maxlength="500"></textarea>
                 <button onclick="saveAboutMe()" class="btn-game" style="margin-top: 10px;">Сохранить</button>
             </div>
             
@@ -973,6 +1040,7 @@
                         <button onclick="takeCoinsFromUser()" class="btn-admin">💸 Забрать</button>
                     </div>
                     <button onclick="giveCoinsToAll()" class="btn-game">Дать всем +500 монет</button>
+                    <button onclick="clearChat()" class="btn-game" style="background:#e74c3c;color:white;">🗑️ Очистить чат</button>
                 </div>
             </div>
             
@@ -985,6 +1053,14 @@
             <h3>📊 История операций</h3>
             <div class="transaction-list" id="transactionsList"></div>
             <button onclick="closeTransactions()" class="btn-game" style="width:100%;margin-top:20px;">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="userInfoModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h3>👤 Информация о пользователе</h3>
+            <div id="userInfoContent"></div>
+            <button onclick="closeUserInfo()" class="btn-game" style="width:100%;margin-top:20px;">Закрыть</button>
         </div>
     </div>
 
@@ -1004,32 +1080,31 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        console.log('Firebase Realtime Database подключена!');
-        
-        // Конфигурация кодов с защитой
+        // Конфигурация
         const ADMIN_CODES = {
+            'DRON777': { name: 'Андрей', role: 'god', emoji: '🌟', coins: 1000000 },
             'RUSTIK2024': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
-            'LIZA2024': { name: 'Лиза', role: 'superadmin', emoji: '👸' },
+            'LIZOK': { name: 'Лиза', role: 'superadmin', emoji: '👸' },
             'SVEDETEL2024': { name: 'Свидетель', role: 'moderator', emoji: '🎩' }
         };
 
         const MONEY_CODES = {
-            'GORKO2024': { amount: 500, description: 'Код GORKO2024' },
-            'BOMBOM2024': { amount: 300, description: 'Код BOMBOM2024' },
-            'HONEYMOON2024': { amount: 1000, description: 'Код HONEYMOON2024' },
-            'PARTY2024': { amount: 250, description: 'Код PARTY2024' },
-            'WEDDING2024': { amount: 750, description: 'Код WEDDING2024' },
-            'LOVE2024': { amount: 1500, description: 'Код LOVE2024' },
-            'FAMILY2024': { amount: 2000, description: 'Код FAMILY2024' },
-            'DANCE2024': { amount: 600, description: 'Код DANCE2024' },
-            'HAPPY2024': { amount: 800, description: 'Код HAPPY2024' },
-            'FRIENDS2024': { amount: 400, description: 'Код FRIENDS2024' }
+            'GORKO2024': { amount: 500 },
+            'BOMBOM2024': { amount: 300 },
+            'HONEYMOON2024': { amount: 1000 },
+            'PARTY2024': { amount: 250 },
+            'WEDDING2024': { amount: 750 },
+            'LOVE2024': { amount: 1500 },
+            'FAMILY2024': { amount: 2000 },
+            'DANCE2024': { amount: 600 },
+            'HAPPY2024': { amount: 800 },
+            'FRIENDS2024': { amount: 400 }
         };
 
         const SECRET_ROOMS = {
-            'STEAM2024': { name: 'Комната Пацанов 🎮', icon: '🍺', description: 'Только для парней' },
-            'BESTY2024': { name: 'Комната Девчонок 💅', icon: '💋', description: 'Только для девушек' },
-            'SURPRISE2024': { name: 'Сюрприз для молодоженов 🎁', icon: '🎁', description: 'Обсуждение сюрприза' }
+            'STEAM2024': { name: 'Комната Пацанов 🎮', icon: '🍺' },
+            'BESTY2024': { name: 'Комната Девчонок 💅', icon: '💋' },
+            'SURPRISE2024': { name: 'Сюрприз для молодоженов 🎁', icon: '🎁' }
         };
 
         const EMOJIS = ['😎', '🥳', '🎉', '💃', '🕺', '🤵', '👰', '🍾', '💖', '🎊', '😜', '🤪', '🦄', '🌟', '🎭', '🎪'];
@@ -1043,44 +1118,37 @@
         ];
 
         const BINGO_ITEMS = [
-            'Рустам поправил галстук',
-            'Лиза заплакала',
-            'Кто-то украл цветок',
-            'Драка на танцполе',
-            'Бабушка танцует',
-            'Тост со слезами',
-            'Кто-то уснул',
-            'Фотосессия',
-            'Конкурс',
-            'Поцелуй',
-            'Разбился бокал',
-            'Кто-то поет',
-            'Танцы до упаду',
-            'Объятия',
-            'Селфи с молодоженами',
-            'Шутка про тещу'
+            'Рустам поправил галстук', 'Лиза заплакала', 'Кто-то украл цветок',
+            'Драка на танцполе', 'Бабушка танцует', 'Тост со слезами',
+            'Кто-то уснул', 'Фотосессия', 'Конкурс', 'Поцелуй',
+            'Разбился бокал', 'Кто-то поет', 'Танцы до упаду',
+            'Объятия', 'Селфи с молодоженами', 'Шутка про тещу'
         ];
 
         const CHALLENGES = [
-            'Скажи тост за молодоженов! 🥂',
-            'Сделай селфи с невестой! 📸',
-            'Станцуй с женихом! 💃',
-            'Расскажи смешную историю про Рустама! 😄',
-            'Спой песню про любовь! 🎤',
-            'Обними 5 человек! 🤗',
-            'Придумай новое прозвище для пары! 💑',
-            'Покажи свой лучший танец! 🕺',
-            'Сделай комплимент всем за столом! ❤️',
-            'Расскажи анекдот! 😂'
+            'Скажи тост за молодоженов! 🥂', 'Сделай селфи с невестой! 📸',
+            'Станцуй с женихом! 💃', 'Расскажи смешную историю! 😄',
+            'Спой песню про любовь! 🎤', 'Обними 5 человек! 🤗',
+            'Придумай прозвище для пары! 💑', 'Покажи лучший танец! 🕺',
+            'Сделай комплимент всем! ❤️', 'Расскажи анекдот! 😂'
         ];
 
         const SHOP_ITEMS = [
-            { id: 'pin_message', name: '📌 Закрепить сообщение', price: 200, description: 'Твое сообщение будет в топе чата 10 минут' },
-            { id: 'confetti', name: '🎊 Конфетти в чат', price: 150, description: 'Запусти конфетти для всех!' },
-            { id: 'fireworks', name: '🎆 Фейерверк', price: 500, description: 'Устрой салют в чате!' },
+            { id: 'pin_message', name: '📌 Закрепить сообщение', price: 200, description: 'Топ чата на 10 минут' },
+            { id: 'confetti', name: '🎊 Конфетти в чат', price: 150, description: 'Запусти конфетти!' },
+            { id: 'fireworks', name: '🎆 Фейерверк', price: 500, description: 'Устрой салют!' },
             { id: 'heart_rain', name: '💖 Дождь из сердечек', price: 300, description: 'Завали чат сердечками!' },
-            { id: 'crown', name: '👑 Стать королем вечера', price: 1000, description: 'Получи корону на 1 час' },
-            { id: 'nickname', name: '✏️ Изменить ник', price: 400, description: 'Поменяй свое имя на 1 час' }
+            { id: 'crown', name: '👑 Стать королем вечера', price: 1000, description: 'Корона на 1 час' }
+        ];
+
+        // Чат-игры
+        const CHAT_GAMES = [
+            { name: 'Правда или действие', description: 'Выбери: правда или действие?', emoji: '🎭' },
+            { name: 'Я никогда не...', description: 'Признайся в том, что никогда не делал!', emoji: '🤫' },
+            { name: 'Кто я?', description: 'Угадай персонажа по описанию!', emoji: '🕵️' },
+            { name: 'Ассоциации', description: 'Назови первую ассоциацию со словом!', emoji: '💭' },
+            { name: 'Продолжи фразу', description: 'Продолжи: "На свадьбе самое главное..."', emoji: '✍️' },
+            { name: 'Угадай песню', description: 'Угадай песню по эмодзи!', emoji: '🎵' }
         ];
 
         let currentUser = null;
@@ -1124,12 +1192,10 @@
             localStorage.setItem('used_codes', JSON.stringify([...usedCodes]));
         }
 
-        // Проверка использован ли код
         function isCodeUsed(code) {
             return usedCodes.has(code);
         }
 
-        // Отметить код как использованный
         function markCodeAsUsed(code) {
             usedCodes.add(code);
             saveUsedCodes();
@@ -1156,7 +1222,6 @@
             let emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
             let bonusCoins = 0;
             
-            // Проверяем админ коды
             if (code && ADMIN_CODES[code]) {
                 if (isCodeUsed(code)) {
                     errorDiv.textContent = 'Этот код уже использован! 😏';
@@ -1167,7 +1232,7 @@
                 if (adminData.name.toLowerCase() === name.toLowerCase()) {
                     role = adminData.role;
                     emoji = adminData.emoji;
-                    bonusCoins += 10000;
+                    bonusCoins = adminData.coins || 10000;
                     markCodeAsUsed(code);
                 } else {
                     errorDiv.textContent = 'Неверное имя для этого кода! 😏';
@@ -1175,7 +1240,6 @@
                 }
             }
             
-            // Проверяем денежные коды
             if (code && MONEY_CODES[code]) {
                 if (isCodeUsed(code)) {
                     errorDiv.textContent = 'Этот код уже использован! 😏';
@@ -1193,75 +1257,29 @@
                 role: role,
                 coins: 1000 + bonusCoins,
                 about: '',
+                messagesCount: 0,
+                spentCoins: 0,
+                earnedCoins: 0,
                 createdAt: Date.now()
             };
             
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
             
-            // Сохраняем в базу данных
             database.ref('users/' + currentUser.id).set({
                 name: currentUser.name,
                 emoji: currentUser.emoji,
                 role: currentUser.role,
                 coins: currentUser.coins,
                 about: '',
+                messagesCount: 0,
+                spentCoins: 0,
+                earnedCoins: 0,
                 createdAt: currentUser.createdAt
             });
             
-            addTransaction(currentUser.id, currentUser.name, '+', 1000 + bonusCoins, 'Начальный баланс');
+            addTransaction(currentUser.id, currentUser.name, '+', currentUser.coins, 'Начальный баланс');
             
             showMainScreen();
-        }
-
-        // Активация кода в профиле
-        function activateCode() {
-            const codeInput = document.getElementById('profileCodeInput');
-            const code = codeInput.value.toUpperCase().trim();
-            const resultDiv = document.getElementById('codeResult');
-            
-            resultDiv.innerHTML = '';
-            
-            if (!code) {
-                resultDiv.innerHTML = '<p style="color:red;">Введите код!</p>';
-                return;
-            }
-            
-            // Проверяем использован ли код
-            if (isCodeUsed(code)) {
-                resultDiv.innerHTML = '<p style="color:red;">❌ Этот код уже использован!</p>';
-                return;
-            }
-            
-            // Проверяем денежные коды
-            if (MONEY_CODES[code]) {
-                const amount = MONEY_CODES[code].amount;
-                updateCoins(amount, 'Активация кода ' + code);
-                markCodeAsUsed(code);
-                resultDiv.innerHTML = '<p style="color:green;">✅ Код активирован! +' + amount + ' 🪙</p>';
-                codeInput.value = '';
-                return;
-            }
-            
-            // Проверяем секретные комнаты
-            if (SECRET_ROOMS[code]) {
-                const room = SECRET_ROOMS[code];
-                const roomId = code.toLowerCase();
-                
-                if (!joinedRooms.has(roomId)) {
-                    joinedRooms.add(roomId);
-                    saveJoinedRooms();
-                    markCodeAsUsed(code);
-                    loadRooms();
-                    loadSecretRoomsList();
-                    resultDiv.innerHTML = '<p style="color:green;">✅ Открыта комната: ' + room.name + '</p>';
-                } else {
-                    resultDiv.innerHTML = '<p style="color:orange;">⚠️ Вы уже в этой комнате!</p>';
-                }
-                codeInput.value = '';
-                return;
-            }
-            
-            resultDiv.innerHTML = '<p style="color:red;">❌ Неверный код!</p>';
         }
 
         function showMainScreen() {
@@ -1277,17 +1295,26 @@
             document.getElementById('aboutMe').value = currentUser.about || '';
             
             let status = 'Гость 🎉';
-            if (currentUser.role === 'superadmin') {
+            let badgeText = '';
+            
+            if (currentUser.role === 'god') {
+                status = 'Верховный администратор 🌟';
+                badgeText = '🌟 Бог режима';
+                document.getElementById('adminBadge').style.display = 'inline';
+                document.getElementById('adminPanel').style.display = 'block';
+            } else if (currentUser.role === 'superadmin') {
                 status = 'Суперадмин 👑';
-                document.getElementById('adminBadge').textContent = '👑 Суперадмин';
+                badgeText = '👑 Суперадмин';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             } else if (currentUser.role === 'moderator') {
                 status = 'Свидетель 🎩';
-                document.getElementById('adminBadge').textContent = '🎩 Свидетель';
+                badgeText = '🎩 Свидетель';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             }
+            
+            document.getElementById('adminBadge').textContent = badgeText;
             document.getElementById('profileStatus').textContent = status;
             
             loadMessages();
@@ -1298,7 +1325,7 @@
         }
 
         function switchTab(tabName) {
-            const tabs = ['chat', 'games', 'shop', 'rooms', 'profile'];
+            const tabs = ['chat', 'games', 'leaders', 'shop', 'rooms', 'profile'];
             tabs.forEach(tab => {
                 document.getElementById(tab + 'Tab').style.display = tab === tabName ? 'block' : 'none';
             });
@@ -1312,8 +1339,13 @@
             if (buttons[tabIndex]) {
                 buttons[tabIndex].classList.add('active');
             }
+            
+            if (tabName === 'leaders') {
+                loadLeaderboard();
+            }
         }
 
+        // Отправка сообщений
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -1333,9 +1365,13 @@
                 if (currentUser.coins < 1500) {
                     updateCoins(5, 'Сообщение в чате');
                 }
-            }).catch(error => {
-                console.error('Ошибка отправки:', error);
-                alert('Ошибка отправки сообщения');
+                
+                // Обновляем счетчик сообщений
+                currentUser.messagesCount = (currentUser.messagesCount || 0) + 1;
+                database.ref('users/' + currentUser.id).update({
+                    messagesCount: currentUser.messagesCount
+                });
+                localStorage.setItem('wedding_user', JSON.stringify(currentUser));
             });
         }
 
@@ -1344,6 +1380,22 @@
             sendMessage();
         }
 
+        // Чат-игра
+        function startChatGame() {
+            const game = CHAT_GAMES[Math.floor(Math.random() * CHAT_GAMES.length)];
+            
+            database.ref('messages').push({
+                userId: 'system',
+                userName: '🎲 Чат-игра',
+                text: `${game.emoji} ${game.name}: ${game.description}`,
+                emoji: '🎲',
+                timestamp: Date.now(),
+                room: currentRoom,
+                isSystem: true
+            });
+        }
+
+        // Загрузка сообщений
         function loadMessages() {
             if (messagesRef) {
                 messagesRef.off();
@@ -1370,10 +1422,12 @@
                         minute: '2-digit'
                     }) : '';
                     
+                    const userName = msg.isSystem ? msg.userName : msg.userName;
+                    
                     messageDiv.innerHTML = `
                         <div class="message-header">
                             <span>${msg.emoji || '🎉'}</span>
-                            <span class="message-user">${msg.userName}</span>
+                            <span class="message-user" onclick="showUserInfo('${msg.userId}')">${userName}</span>
                             <span class="message-time">${time}</span>
                         </div>
                         <div class="message-text">${msg.text}</div>
@@ -1384,6 +1438,204 @@
                 
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             });
+        }
+
+        // Показать информацию о пользователе
+        function showUserInfo(userId) {
+            const modal = document.getElementById('userInfoModal');
+            const content = document.getElementById('userInfoContent');
+            
+            modal.style.display = 'flex';
+            content.innerHTML = '<div>Загрузка...</div>';
+            
+            const targetUserId = userId || currentUser.id;
+            
+            database.ref('users/' + targetUserId).once('value', (snapshot) => {
+                const userData = snapshot.val();
+                
+                if (userData) {
+                    content.innerHTML = `
+                        <div style="text-align:center;">
+                            <div style="font-size:60px;">${userData.emoji || '🎉'}</div>
+                            <h4>${userData.name}</h4>
+                            <p>💰 Баланс: ${userData.coins || 0} монет</p>
+                            <p>💬 Сообщений: ${userData.messagesCount || 0}</p>
+                            <p>💸 Потрачено: ${userData.spentCoins || 0} монет</p>
+                            <p>📈 Заработано: ${userData.earnedCoins || 0} монет</p>
+                            ${userData.about ? '<p>📝 О себе: ' + userData.about + '</p>' : ''}
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = '<div>Пользователь не найден</div>';
+                }
+            });
+        }
+
+        function closeUserInfo() {
+            document.getElementById('userInfoModal').style.display = 'none';
+        }
+
+        // Таблица лидеров
+        function loadLeaderboard() {
+            const leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '<div>Загрузка...</div>';
+            
+            database.ref('users').once('value', (snapshot) => {
+                const users = [];
+                
+                snapshot.forEach((childSnapshot) => {
+                    users.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                
+                // Сортируем по разным критериям
+                const byCoins = [...users].sort((a, b) => (b.coins || 0) - (a.coins || 0));
+                const byMessages = [...users].sort((a, b) => (b.messagesCount || 0) - (a.messagesCount || 0));
+                const bySpent = [...users].sort((a, b) => (b.spentCoins || 0) - (a.spentCoins || 0));
+                const byEarned = [...users].sort((a, b) => (b.earnedCoins || 0) - (a.earnedCoins || 0));
+                
+                leaderboardDiv.innerHTML = `
+                    <h3>💰 Больше всех монет</h3>
+                    ${byCoins.slice(0, 5).map((user, index) => `
+                        <div class="leaderboard-item">
+                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
+                            </div>
+                            <div class="leaderboard-value">${user.coins || 0} 🪙</div>
+                        </div>
+                    `).join('')}
+                    
+                    <h3 style="margin-top:20px;">💬 Больше всех сообщений</h3>
+                    ${byMessages.slice(0, 5).map((user, index) => `
+                        <div class="leaderboard-item">
+                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
+                            </div>
+                            <div class="leaderboard-value">${user.messagesCount || 0} 💬</div>
+                        </div>
+                    `).join('')}
+                    
+                    <h3 style="margin-top:20px;">💸 Больше всех потратил</h3>
+                    ${bySpent.slice(0, 5).map((user, index) => `
+                        <div class="leaderboard-item">
+                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
+                            </div>
+                            <div class="leaderboard-value">${user.spentCoins || 0} 💸</div>
+                        </div>
+                    `).join('')}
+                `;
+            });
+        }
+
+        // Очистка чата
+        function clearChat() {
+            if (currentUser.role !== 'god') {
+                alert('Только Верховный администратор может очистить чат!');
+                return;
+            }
+            
+            const confirm1 = confirm('Вы уверены, что хотите очистить чат?');
+            if (!confirm1) return;
+            
+            const confirm2 = confirm('Точно? Все сообщения будут удалены!');
+            if (!confirm2) return;
+            
+            const confirm3 = confirm('Последний шанс! Очистить чат?');
+            if (!confirm3) return;
+            
+            database.ref('messages').remove().then(() => {
+                alert('Чат очищен! 🗑️');
+                loadMessages();
+            });
+        }
+
+        // Обновление монет
+        function updateCoins(amount, description) {
+            currentUser.coins += amount;
+            
+            if (amount < 0) {
+                currentUser.spentCoins = (currentUser.spentCoins || 0) + Math.abs(amount);
+            } else {
+                currentUser.earnedCoins = (currentUser.earnedCoins || 0) + amount;
+            }
+            
+            document.getElementById('balance').textContent = currentUser.coins;
+            document.getElementById('profileBalance').textContent = currentUser.coins;
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            
+            if (currentUser.id) {
+                database.ref('users/' + currentUser.id).update({
+                    coins: currentUser.coins,
+                    spentCoins: currentUser.spentCoins,
+                    earnedCoins: currentUser.earnedCoins
+                });
+            }
+            
+            addTransaction(currentUser.id, currentUser.name, amount > 0 ? '+' : '', amount, description);
+        }
+
+        function addTransaction(userId, userName, sign, amount, description) {
+            database.ref('transactions').push({
+                userId: userId,
+                userName: userName,
+                amount: amount,
+                description: description,
+                timestamp: Date.now()
+            });
+        }
+
+        function showTransactions() {
+            const modal = document.getElementById('transactionsModal');
+            const list = document.getElementById('transactionsList');
+            
+            modal.style.display = 'flex';
+            list.innerHTML = '<div>Загрузка...</div>';
+            
+            database.ref('transactions')
+                .orderByChild('userId')
+                .equalTo(currentUser.id)
+                .limitToLast(50)
+                .on('value', (snapshot) => {
+                    list.innerHTML = '';
+                    
+                    const transactions = [];
+                    snapshot.forEach((childSnapshot) => {
+                        transactions.push(childSnapshot.val());
+                    });
+                    
+                    transactions.reverse().forEach(trans => {
+                        const div = document.createElement('div');
+                        div.className = 'transaction-item';
+                        
+                        const sign = trans.amount > 0 ? '+' : '';
+                        const className = trans.amount > 0 ? 'transaction-positive' : 'transaction-negative';
+                        
+                        const time = new Date(trans.timestamp).toLocaleTimeString('ru-RU', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        div.innerHTML = `
+                            <div>
+                                <div>${trans.description}</div>
+                                <small>${time}</small>
+                            </div>
+                            <span class="${className}">${sign}${trans.amount} 🪙</span>
+                        `;
+                        
+                        list.appendChild(div);
+                    });
+                });
+        }
+
+        function closeTransactions() {
+            document.getElementById('transactionsModal').style.display = 'none';
         }
 
         function saveAboutMe() {
@@ -1399,6 +1651,53 @@
             }
             
             alert('Информация сохранена! ✅');
+        }
+
+        function activateCode() {
+            const codeInput = document.getElementById('profileCodeInput');
+            const code = codeInput.value.toUpperCase().trim();
+            const resultDiv = document.getElementById('codeResult');
+            
+            resultDiv.innerHTML = '';
+            
+            if (!code) {
+                resultDiv.innerHTML = '<p style="color:red;">Введите код!</p>';
+                return;
+            }
+            
+            if (isCodeUsed(code)) {
+                resultDiv.innerHTML = '<p style="color:red;">❌ Этот код уже использован!</p>';
+                return;
+            }
+            
+            if (MONEY_CODES[code]) {
+                const amount = MONEY_CODES[code].amount;
+                updateCoins(amount, 'Активация кода ' + code);
+                markCodeAsUsed(code);
+                resultDiv.innerHTML = '<p style="color:green;">✅ Код активирован! +' + amount + ' 🪙</p>';
+                codeInput.value = '';
+                return;
+            }
+            
+            if (SECRET_ROOMS[code]) {
+                const room = SECRET_ROOMS[code];
+                const roomId = code.toLowerCase();
+                
+                if (!joinedRooms.has(roomId)) {
+                    joinedRooms.add(roomId);
+                    saveJoinedRooms();
+                    markCodeAsUsed(code);
+                    loadRooms();
+                    loadSecretRoomsList();
+                    resultDiv.innerHTML = '<p style="color:green;">✅ Открыта комната: ' + room.name + '</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color:orange;">⚠️ Вы уже в этой комнате!</p>';
+                }
+                codeInput.value = '';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p style="color:red;">❌ Неверный код!</p>';
         }
 
         function loadRooms() {
@@ -1434,7 +1733,7 @@
             );
             
             if (joinedSecretRooms.length === 0) {
-                secretRoomsDiv.innerHTML = '<p style="color:#666;">У вас нет секретных комнат. Введите код, чтобы получить доступ.</p>';
+                secretRoomsDiv.innerHTML = '<p style="color:#666;">У вас нет секретных комнат.</p>';
                 return;
             }
             
@@ -1443,7 +1742,7 @@
                     const room = SECRET_ROOMS[roomKey];
                     return `
                         <div class="room-card ${roomKey.toLowerCase() === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${roomKey.toLowerCase()}')">
-                            ${room.icon} ${room.name} - ${room.description}
+                            ${room.icon} ${room.name}
                         </div>
                     `;
                 }).join('');
@@ -1461,13 +1760,6 @@
             const password = passwordInput.value.toUpperCase().trim();
             
             if (SECRET_ROOMS[password]) {
-                if (isCodeUsed(password)) {
-                    if (!joinedRooms.has(password.toLowerCase())) {
-                        alert('Этот код уже использован!');
-                        return;
-                    }
-                }
-                
                 const room = SECRET_ROOMS[password];
                 const roomId = password.toLowerCase();
                 
@@ -1534,79 +1826,6 @@
                 default:
                     alert('Покупка успешна! ' + item.name);
             }
-        }
-
-        function updateCoins(amount, description) {
-            currentUser.coins += amount;
-            document.getElementById('balance').textContent = currentUser.coins;
-            document.getElementById('profileBalance').textContent = currentUser.coins;
-            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
-            
-            if (currentUser.id) {
-                database.ref('users/' + currentUser.id).update({
-                    coins: currentUser.coins
-                });
-            }
-            
-            addTransaction(currentUser.id, currentUser.name, amount > 0 ? '+' : '', amount, description);
-        }
-
-        function addTransaction(userId, userName, sign, amount, description) {
-            database.ref('transactions').push({
-                userId: userId,
-                userName: userName,
-                amount: amount,
-                description: description,
-                timestamp: Date.now()
-            });
-        }
-
-        function showTransactions() {
-            const modal = document.getElementById('transactionsModal');
-            const list = document.getElementById('transactionsList');
-            
-            modal.style.display = 'flex';
-            list.innerHTML = '<div>Загрузка...</div>';
-            
-            database.ref('transactions')
-                .orderByChild('userId')
-                .equalTo(currentUser.id)
-                .limitToLast(50)
-                .on('value', (snapshot) => {
-                    list.innerHTML = '';
-                    
-                    const transactions = [];
-                    snapshot.forEach((childSnapshot) => {
-                        transactions.push(childSnapshot.val());
-                    });
-                    
-                    transactions.reverse().forEach(trans => {
-                        const div = document.createElement('div');
-                        div.className = 'transaction-item';
-                        
-                        const sign = trans.amount > 0 ? '+' : '';
-                        const className = trans.amount > 0 ? 'transaction-positive' : 'transaction-negative';
-                        
-                        const time = new Date(trans.timestamp).toLocaleTimeString('ru-RU', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-                        
-                        div.innerHTML = `
-                            <div>
-                                <div>${trans.description}</div>
-                                <small>${time}</small>
-                            </div>
-                            <span class="${className}">${sign}${trans.amount} 🪙</span>
-                        `;
-                        
-                        list.appendChild(div);
-                    });
-                });
-        }
-
-        function closeTransactions() {
-            document.getElementById('transactionsModal').style.display = 'none';
         }
 
         function generateBingoCard() {
@@ -1774,8 +1993,9 @@
             document.getElementById('quizArea').innerHTML = '<p style="margin: 15px 0;">🎉 Правильно! +100 🪙</p>';
         }
 
+        // Админ функции
         function giveCoinsToUser() {
-            if (currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
+            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
                 alert('Недостаточно прав!');
                 return;
             }
@@ -1794,7 +2014,8 @@
                     const newCoins = (userData.coins || 0) + amount;
                     
                     database.ref('users/' + childSnapshot.key).update({
-                        coins: newCoins
+                        coins: newCoins,
+                        earnedCoins: (userData.earnedCoins || 0) + amount
                     });
                     
                     addTransaction(childSnapshot.key, userName, '+', amount, 'Начисление администратором');
@@ -1805,8 +2026,8 @@
         }
 
         function takeCoinsFromUser() {
-            if (currentUser.role !== 'superadmin') {
-                alert('Только суперадмин может забирать монеты!');
+            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin') {
+                alert('Недостаточно прав!');
                 return;
             }
             
@@ -1824,7 +2045,8 @@
                     const newCoins = Math.max(0, (userData.coins || 0) - amount);
                     
                     database.ref('users/' + childSnapshot.key).update({
-                        coins: newCoins
+                        coins: newCoins,
+                        spentCoins: (userData.spentCoins || 0) + amount
                     });
                     
                     addTransaction(childSnapshot.key, userName, '-', amount, 'Списание администратором');
@@ -1835,7 +2057,7 @@
         }
 
         function giveCoinsToAll() {
-            if (currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
+            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
                 alert('Недостаточно прав!');
                 return;
             }
@@ -1862,7 +2084,10 @@
                     name: currentUser.name,
                     emoji: currentUser.emoji,
                     coins: currentUser.coins,
-                    about: currentUser.about || ''
+                    about: currentUser.about || '',
+                    messagesCount: currentUser.messagesCount || 0,
+                    spentCoins: currentUser.spentCoins || 0,
+                    earnedCoins: currentUser.earnedCoins || 0
                 });
             }
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
@@ -1877,6 +2102,7 @@
         }
         
         console.log('Приложение готово!');
+        console.log('Андрей - Верховный администратор (код: ANDREY2024)');
     </script>
 </body>
 </html>
