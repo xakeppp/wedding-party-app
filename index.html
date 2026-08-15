@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
+        /* Все стили остаются те же */
         * {
             margin: 0;
             padding: 0;
@@ -101,7 +102,7 @@
             font-size: 14px;
         }
 
-        .input-group input {
+        .input-group input, .input-group textarea {
             width: 100%;
             padding: 15px;
             border: 2px solid #e0e0e0;
@@ -111,7 +112,7 @@
             background: #f8f9fa;
         }
 
-        .input-group input:focus {
+        .input-group input:focus, .input-group textarea:focus {
             outline: none;
             border-color: var(--primary);
             background: white;
@@ -227,6 +228,7 @@
             font-weight: bold;
             font-size: 18px;
             backdrop-filter: blur(10px);
+            cursor: pointer;
         }
 
         .tabs {
@@ -519,6 +521,11 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
+        .room-card.active-room {
+            background: var(--gradient);
+            color: white;
+        }
+
         .secret-room {
             margin-top: 30px;
             display: flex;
@@ -572,6 +579,43 @@
             background-clip: text;
         }
 
+        .profile-section {
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .about-me {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .code-input-group input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+        }
+
         .admin-section {
             padding: 25px;
             background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
@@ -602,7 +646,6 @@
             transform: translateY(-2px);
         }
 
-        /* Магазин */
         .shop-grid {
             display: grid;
             gap: 15px;
@@ -633,7 +676,6 @@
             font-weight: bold;
         }
 
-        /* История транзакций */
         .transaction-list {
             max-height: 300px;
             overflow-y: auto;
@@ -659,7 +701,6 @@
             font-weight: bold;
         }
 
-        /* Админ панель */
         .admin-controls {
             display: grid;
             gap: 15px;
@@ -668,10 +709,12 @@
         .admin-control-group {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .admin-control-group input {
             flex: 1;
+            min-width: 120px;
             padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
@@ -692,7 +735,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Модальные окна */
         .modal {
             position: fixed;
             top: 0;
@@ -712,6 +754,8 @@
             border-radius: 20px;
             max-width: 400px;
             width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-content h3 {
@@ -741,7 +785,7 @@
     </style>
 </head>
 <body>
-    <!-- Экран входа -->
+    <!-- Экраны и модальные окна -->
     <div id="loginScreen" class="screen">
         <div class="login-box">
             <div class="wedding-icon">💍</div>
@@ -782,7 +826,6 @@
         </div>
     </div>
 
-    <!-- Главный экран -->
     <div id="mainScreen" class="screen" style="display:none">
         <div class="header">
             <div class="user-info">
@@ -889,10 +932,12 @@
                 <input type="password" id="roomPassword" placeholder="Пароль секретной комнаты">
                 <button onclick="joinSecretRoom()" class="btn-game">Войти</button>
             </div>
+            <div id="secretRoomsList" style="margin-top: 20px;"></div>
         </div>
 
         <div id="profileTab" class="tab-content" style="display:none">
             <h2 class="section-title">👤 Профиль</h2>
+            
             <div class="profile-card">
                 <div class="profile-avatar" id="profileEmoji"></div>
                 <h3 id="profileName"></h3>
@@ -900,6 +945,22 @@
                 <div class="profile-balance">
                     💰 <span id="profileBalance">0</span> монет
                 </div>
+                <button onclick="showTransactions()" class="btn-game" style="margin-top: 15px;">📊 История операций</button>
+            </div>
+            
+            <div class="profile-section">
+                <h3>✏️ О себе</h3>
+                <textarea id="aboutMe" class="about-me" placeholder="Расскажи о себе, как ты знаешь молодоженов, любимый тост..." maxlength="500"></textarea>
+                <button onclick="saveAboutMe()" class="btn-game" style="margin-top: 10px;">Сохранить</button>
+            </div>
+            
+            <div class="profile-section">
+                <h3>🔐 Ввод кодов</h3>
+                <div class="code-input-group">
+                    <input type="password" id="profileCodeInput" placeholder="Введите код">
+                    <button onclick="activateCode()" class="btn-game">Активировать</button>
+                </div>
+                <div id="codeResult" style="margin-top: 10px;"></div>
             </div>
             
             <div class="admin-section" id="adminPanel" style="display:none">
@@ -919,7 +980,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно для транзакций -->
     <div id="transactionsModal" class="modal" style="display:none">
         <div class="modal-content">
             <h3>📊 История операций</h3>
@@ -941,30 +1001,35 @@
             measurementId: "G-Q5RQ1DD4SG"
         };
         
-        // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
         console.log('Firebase Realtime Database подключена!');
         
-        // Конфигурация
+        // Конфигурация кодов с защитой
         const ADMIN_CODES = {
-            'RUSTIK': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
-            'LIZOK': { name: 'Лиза', role: 'superadmin', emoji: '👸' },
-            'BESTMAN2024': { name: 'Свидетель', role: 'moderator', emoji: '🎩' }
+            'RUSTIK2024': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
+            'LIZA2024': { name: 'Лиза', role: 'superadmin', emoji: '👸' },
+            'SVEDETEL2024': { name: 'Свидетель', role: 'moderator', emoji: '🎩' }
         };
 
         const MONEY_CODES = {
-            'GORKO': 500,
-            'BOMBOM': 300,
-            'HONEYMOON': 1000,
-            'PARTY': 250
+            'GORKO2024': { amount: 500, description: 'Код GORKO2024' },
+            'BOMBOM2024': { amount: 300, description: 'Код BOMBOM2024' },
+            'HONEYMOON2024': { amount: 1000, description: 'Код HONEYMOON2024' },
+            'PARTY2024': { amount: 250, description: 'Код PARTY2024' },
+            'WEDDING2024': { amount: 750, description: 'Код WEDDING2024' },
+            'LOVE2024': { amount: 1500, description: 'Код LOVE2024' },
+            'FAMILY2024': { amount: 2000, description: 'Код FAMILY2024' },
+            'DANCE2024': { amount: 600, description: 'Код DANCE2024' },
+            'HAPPY2024': { amount: 800, description: 'Код HAPPY2024' },
+            'FRIENDS2024': { amount: 400, description: 'Код FRIENDS2024' }
         };
 
         const SECRET_ROOMS = {
-            'STEAM_2024': { name: 'Комната Пацанов 🎮', icon: '🍺' },
-            'BESTY': { name: 'Комната Девчонок 💅', icon: '💋' },
-            'SURPRISE': { name: 'Сюрприз для молодоженов 🎁', icon: '🎁' }
+            'STEAM2024': { name: 'Комната Пацанов 🎮', icon: '🍺', description: 'Только для парней' },
+            'BESTY2024': { name: 'Комната Девчонок 💅', icon: '💋', description: 'Только для девушек' },
+            'SURPRISE2024': { name: 'Сюрприз для молодоженов 🎁', icon: '🎁', description: 'Обсуждение сюрприза' }
         };
 
         const EMOJIS = ['😎', '🥳', '🎉', '💃', '🕺', '🤵', '👰', '🍾', '💖', '🎊', '😜', '🤪', '🦄', '🌟', '🎭', '🎪'];
@@ -1023,16 +1088,52 @@
         let bingoCard = [];
         let checkedBingo = new Set();
         let messagesRef = null;
-        let userRef = null;
+        let joinedRooms = new Set(['main']);
+        let usedCodes = new Set();
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             const savedUser = localStorage.getItem('wedding_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
+                loadJoinedRooms();
+                loadUsedCodes();
                 showMainScreen();
             }
         });
+
+        function loadJoinedRooms() {
+            const savedRooms = localStorage.getItem('joined_rooms');
+            if (savedRooms) {
+                joinedRooms = new Set(JSON.parse(savedRooms));
+            }
+        }
+
+        function saveJoinedRooms() {
+            localStorage.setItem('joined_rooms', JSON.stringify([...joinedRooms]));
+        }
+
+        function loadUsedCodes() {
+            const savedCodes = localStorage.getItem('used_codes');
+            if (savedCodes) {
+                usedCodes = new Set(JSON.parse(savedCodes));
+            }
+        }
+
+        function saveUsedCodes() {
+            localStorage.setItem('used_codes', JSON.stringify([...usedCodes]));
+        }
+
+        // Проверка использован ли код
+        function isCodeUsed(code) {
+            return usedCodes.has(code);
+        }
+
+        // Отметить код как использованный
+        function markCodeAsUsed(code) {
+            usedCodes.add(code);
+            saveUsedCodes();
+        }
 
         // Вход
         function login() {
@@ -1055,20 +1156,34 @@
             let emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
             let bonusCoins = 0;
             
+            // Проверяем админ коды
             if (code && ADMIN_CODES[code]) {
+                if (isCodeUsed(code)) {
+                    errorDiv.textContent = 'Этот код уже использован! 😏';
+                    return;
+                }
+                
                 const adminData = ADMIN_CODES[code];
                 if (adminData.name.toLowerCase() === name.toLowerCase()) {
                     role = adminData.role;
                     emoji = adminData.emoji;
                     bonusCoins += 10000;
+                    markCodeAsUsed(code);
                 } else {
                     errorDiv.textContent = 'Неверное имя для этого кода! 😏';
                     return;
                 }
             }
             
+            // Проверяем денежные коды
             if (code && MONEY_CODES[code]) {
-                bonusCoins += MONEY_CODES[code];
+                if (isCodeUsed(code)) {
+                    errorDiv.textContent = 'Этот код уже использован! 😏';
+                    return;
+                }
+                
+                bonusCoins += MONEY_CODES[code].amount;
+                markCodeAsUsed(code);
             }
             
             currentUser = {
@@ -1077,6 +1192,7 @@
                 emoji: emoji,
                 role: role,
                 coins: 1000 + bonusCoins,
+                about: '',
                 createdAt: Date.now()
             };
             
@@ -1088,13 +1204,64 @@
                 emoji: currentUser.emoji,
                 role: currentUser.role,
                 coins: currentUser.coins,
+                about: '',
                 createdAt: currentUser.createdAt
             });
             
-            // Добавляем транзакцию
             addTransaction(currentUser.id, currentUser.name, '+', 1000 + bonusCoins, 'Начальный баланс');
             
             showMainScreen();
+        }
+
+        // Активация кода в профиле
+        function activateCode() {
+            const codeInput = document.getElementById('profileCodeInput');
+            const code = codeInput.value.toUpperCase().trim();
+            const resultDiv = document.getElementById('codeResult');
+            
+            resultDiv.innerHTML = '';
+            
+            if (!code) {
+                resultDiv.innerHTML = '<p style="color:red;">Введите код!</p>';
+                return;
+            }
+            
+            // Проверяем использован ли код
+            if (isCodeUsed(code)) {
+                resultDiv.innerHTML = '<p style="color:red;">❌ Этот код уже использован!</p>';
+                return;
+            }
+            
+            // Проверяем денежные коды
+            if (MONEY_CODES[code]) {
+                const amount = MONEY_CODES[code].amount;
+                updateCoins(amount, 'Активация кода ' + code);
+                markCodeAsUsed(code);
+                resultDiv.innerHTML = '<p style="color:green;">✅ Код активирован! +' + amount + ' 🪙</p>';
+                codeInput.value = '';
+                return;
+            }
+            
+            // Проверяем секретные комнаты
+            if (SECRET_ROOMS[code]) {
+                const room = SECRET_ROOMS[code];
+                const roomId = code.toLowerCase();
+                
+                if (!joinedRooms.has(roomId)) {
+                    joinedRooms.add(roomId);
+                    saveJoinedRooms();
+                    markCodeAsUsed(code);
+                    loadRooms();
+                    loadSecretRoomsList();
+                    resultDiv.innerHTML = '<p style="color:green;">✅ Открыта комната: ' + room.name + '</p>';
+                } else {
+                    resultDiv.innerHTML = '<p style="color:orange;">⚠️ Вы уже в этой комнате!</p>';
+                }
+                codeInput.value = '';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p style="color:red;">❌ Неверный код!</p>';
         }
 
         function showMainScreen() {
@@ -1107,16 +1274,12 @@
             document.getElementById('profileEmoji').textContent = currentUser.emoji;
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileBalance').textContent = currentUser.coins;
+            document.getElementById('aboutMe').value = currentUser.about || '';
             
             let status = 'Гость 🎉';
             if (currentUser.role === 'superadmin') {
                 status = 'Суперадмин 👑';
                 document.getElementById('adminBadge').textContent = '👑 Суперадмин';
-                document.getElementById('adminBadge').style.display = 'inline';
-                document.getElementById('adminPanel').style.display = 'block';
-            } else if (currentUser.role === 'admin') {
-                status = 'Организатор ⭐';
-                document.getElementById('adminBadge').textContent = '⭐ Организатор';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             } else if (currentUser.role === 'moderator') {
@@ -1131,6 +1294,7 @@
             generateBingoCard();
             loadRooms();
             loadShop();
+            loadSecretRoomsList();
         }
 
         function switchTab(tabName) {
@@ -1150,7 +1314,6 @@
             }
         }
 
-        // Отправка сообщений
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -1181,7 +1344,6 @@
             sendMessage();
         }
 
-        // Загрузка сообщений
         function loadMessages() {
             if (messagesRef) {
                 messagesRef.off();
@@ -1224,7 +1386,107 @@
             });
         }
 
-        // Магазин
+        function saveAboutMe() {
+            const aboutText = document.getElementById('aboutMe').value.trim();
+            
+            currentUser.about = aboutText;
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            
+            if (currentUser.id) {
+                database.ref('users/' + currentUser.id).update({
+                    about: aboutText
+                });
+            }
+            
+            alert('Информация сохранена! ✅');
+        }
+
+        function loadRooms() {
+            const roomsList = document.getElementById('roomsList');
+            const rooms = [
+                { id: 'main', name: '💬 Общий чат' },
+                { id: 'toasts', name: '🥂 Тосты и поздравления' },
+                { id: 'photos', name: '📸 Фото и видео' }
+            ];
+            
+            Object.keys(SECRET_ROOMS).forEach(roomKey => {
+                const roomId = roomKey.toLowerCase();
+                if (joinedRooms.has(roomId)) {
+                    rooms.push({
+                        id: roomId,
+                        name: SECRET_ROOMS[roomKey].icon + ' ' + SECRET_ROOMS[roomKey].name
+                    });
+                }
+            });
+            
+            roomsList.innerHTML = rooms.map(room => `
+                <div class="room-card ${room.id === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${room.id}')">
+                    ${room.name}
+                </div>
+            `).join('');
+        }
+
+        function loadSecretRoomsList() {
+            const secretRoomsDiv = document.getElementById('secretRoomsList');
+            
+            const joinedSecretRooms = Object.keys(SECRET_ROOMS).filter(roomKey => 
+                joinedRooms.has(roomKey.toLowerCase())
+            );
+            
+            if (joinedSecretRooms.length === 0) {
+                secretRoomsDiv.innerHTML = '<p style="color:#666;">У вас нет секретных комнат. Введите код, чтобы получить доступ.</p>';
+                return;
+            }
+            
+            secretRoomsDiv.innerHTML = '<h3>🔓 Доступные секретные комнаты:</h3>' + 
+                joinedSecretRooms.map(roomKey => {
+                    const room = SECRET_ROOMS[roomKey];
+                    return `
+                        <div class="room-card ${roomKey.toLowerCase() === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${roomKey.toLowerCase()}')">
+                            ${room.icon} ${room.name} - ${room.description}
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function switchRoom(roomId) {
+            currentRoom = roomId;
+            loadMessages();
+            loadRooms();
+            switchTab('chat');
+        }
+
+        function joinSecretRoom() {
+            const passwordInput = document.getElementById('roomPassword');
+            const password = passwordInput.value.toUpperCase().trim();
+            
+            if (SECRET_ROOMS[password]) {
+                if (isCodeUsed(password)) {
+                    if (!joinedRooms.has(password.toLowerCase())) {
+                        alert('Этот код уже использован!');
+                        return;
+                    }
+                }
+                
+                const room = SECRET_ROOMS[password];
+                const roomId = password.toLowerCase();
+                
+                joinedRooms.add(roomId);
+                saveJoinedRooms();
+                markCodeAsUsed(password);
+                
+                currentRoom = roomId;
+                loadMessages();
+                loadRooms();
+                loadSecretRoomsList();
+                
+                alert('Вы вошли в комнату: ' + room.name);
+                passwordInput.value = '';
+            } else {
+                alert('Неверный пароль! 😜');
+            }
+        }
+
         function loadShop() {
             const shopDiv = document.getElementById('shopItems');
             shopDiv.innerHTML = SHOP_ITEMS.map(item => `
@@ -1252,7 +1514,6 @@
             
             updateCoins(-item.price, 'Покупка: ' + item.name);
             
-            // Здесь можно добавить эффекты
             switch(itemId) {
                 case 'confetti':
                     alert('🎊 Конфетти запущены!');
@@ -1266,6 +1527,8 @@
                 case 'crown':
                     currentUser.emoji = '👑';
                     updateUserData();
+                    document.getElementById('userEmoji').textContent = '👑';
+                    document.getElementById('profileEmoji').textContent = '👑';
                     alert('👑 Теперь ты король вечера!');
                     break;
                 default:
@@ -1273,25 +1536,21 @@
             }
         }
 
-        // Обновление монет
         function updateCoins(amount, description) {
             currentUser.coins += amount;
             document.getElementById('balance').textContent = currentUser.coins;
             document.getElementById('profileBalance').textContent = currentUser.coins;
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
             
-            // Обновляем в базе данных
             if (currentUser.id) {
                 database.ref('users/' + currentUser.id).update({
                     coins: currentUser.coins
                 });
             }
             
-            // Добавляем транзакцию
             addTransaction(currentUser.id, currentUser.name, amount > 0 ? '+' : '', amount, description);
         }
 
-        // Добавление транзакции
         function addTransaction(userId, userName, sign, amount, description) {
             database.ref('transactions').push({
                 userId: userId,
@@ -1302,7 +1561,6 @@
             });
         }
 
-        // Показать транзакции
         function showTransactions() {
             const modal = document.getElementById('transactionsModal');
             const list = document.getElementById('transactionsList');
@@ -1351,7 +1609,6 @@
             document.getElementById('transactionsModal').style.display = 'none';
         }
 
-        // Игры
         function generateBingoCard() {
             const shuffled = [...BINGO_ITEMS].sort(() => Math.random() - 0.5);
             bingoCard = shuffled.slice(0, 9);
@@ -1517,45 +1774,8 @@
             document.getElementById('quizArea').innerHTML = '<p style="margin: 15px 0;">🎉 Правильно! +100 🪙</p>';
         }
 
-        // Комнаты
-        function loadRooms() {
-            const roomsList = document.getElementById('roomsList');
-            const rooms = [
-                { id: 'main', name: '💬 Общий чат' },
-                { id: 'toasts', name: '🥂 Тосты и поздравления' },
-                { id: 'photos', name: '📸 Фото и видео' }
-            ];
-            
-            roomsList.innerHTML = rooms.map(room => `
-                <div class="room-card" onclick="switchRoom('${room.id}')">
-                    ${room.name}
-                </div>
-            `).join('');
-        }
-
-        function switchRoom(roomId) {
-            currentRoom = roomId;
-            loadMessages();
-        }
-
-        function joinSecretRoom() {
-            const passwordInput = document.getElementById('roomPassword');
-            const password = passwordInput.value.toUpperCase().trim();
-            
-            if (SECRET_ROOMS[password]) {
-                const room = SECRET_ROOMS[password];
-                currentRoom = password.toLowerCase();
-                loadMessages();
-                alert('Вы вошли в комнату: ' + room.name);
-                passwordInput.value = '';
-            } else {
-                alert('Неверный пароль! 😜');
-            }
-        }
-
-        // Админ функции
         function giveCoinsToUser() {
-            if (currentUser.role !== 'superadmin' && currentUser.role !== 'admin') {
+            if (currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
                 alert('Недостаточно прав!');
                 return;
             }
@@ -1568,7 +1788,6 @@
                 return;
             }
             
-            // Находим пользователя в базе
             database.ref('users').orderByChild('name').equalTo(userName).once('value', (snapshot) => {
                 snapshot.forEach((childSnapshot) => {
                     const userData = childSnapshot.val();
@@ -1616,7 +1835,7 @@
         }
 
         function giveCoinsToAll() {
-            if (currentUser.role !== 'superadmin' && currentUser.role !== 'admin') {
+            if (currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
                 alert('Недостаточно прав!');
                 return;
             }
@@ -1642,7 +1861,8 @@
                 database.ref('users/' + currentUser.id).update({
                     name: currentUser.name,
                     emoji: currentUser.emoji,
-                    coins: currentUser.coins
+                    coins: currentUser.coins,
+                    about: currentUser.about || ''
                 });
             }
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
@@ -1656,7 +1876,7 @@
             location.reload();
         }
         
-        console.log('Приложение готово! Суперадмин: Рустам (RUSTIK) или Лиза (LIZOK)');
+        console.log('Приложение готово!');
     </script>
 </body>
 </html>
