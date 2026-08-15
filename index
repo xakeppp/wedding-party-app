@@ -1,46 +1,13 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Свадьба Рустама и Лизы</title>
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    .container {
-      text-align: center;
-      padding: 40px;
-    }
-    h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 15px 30px;
-      background: white;
-      color: #667eea;
-      text-decoration: none;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>💍 Рустам & Лиза 💍</h1>
-    <p>Приложение скоро будет доступно!</p>
-    <p>А пока присоединяйтесь к нам в Telegram</p>
-    <a href="https://t.me/your_bot" class="btn">Открыть в Telegram</a>
-  </div>
-</body>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Рустам & Лиза - Свадьба</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
