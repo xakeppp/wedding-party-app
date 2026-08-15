@@ -4,7 +4,614 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Свадьба Рустама и Лизы</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Все стили здесь */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .screen {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Экран входа */
+        .login-box {
+            padding: 40px 30px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .wedding-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .title-gradient {
+            font-size: 42px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 24px;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin: 10px 0;
+            font-weight: bold;
+            min-height: 24px;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .info-icon {
+            font-size: 24px;
+        }
+
+        /* Шапка */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--gradient);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-emoji {
+            font-size: 36px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 2px;
+            display: inline-block;
+        }
+
+        .balance {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Вкладки */
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+        }
+
+        .tab.active {
+            background: var(--gradient);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Чат */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            min-height: 400px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.own {
+            background: var(--gradient);
+            color: white;
+            margin-left: 20px;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .message-user {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .message.own .message-user {
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .message-text {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            background: var(--gradient);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+        }
+
+        .message-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Игры */
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .games-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .game-card {
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card.gradient-1 {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .game-card.gradient-2 {
+            background: var(--gradient-2);
+            color: white;
+        }
+
+        .game-card.gradient-3 {
+            background: var(--gradient-3);
+            color: white;
+        }
+
+        .game-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .game-card p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .btn-game {
+            padding: 15px 25px;
+            background: white;
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-game:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .bingo-cell {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .bingo-cell:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .bingo-cell.checked {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Комнаты */
+        .room-card {
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+        }
+
+        .room-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .secret-room {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .secret-room input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+        }
+
+        .secret-room input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Профиль */
+        .profile-card {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .profile-card h3 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .profile-status {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .profile-balance {
+            font-size: 20px;
+            font-weight: bold;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-section {
+            padding: 25px;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 640px) {
+            .screen {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .title-gradient {
+                font-size: 32px;
+            }
+            
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Экран входа -->
@@ -159,6 +766,498 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Конфигурация
+        const ADMIN_CODES = {
+            'RUSTIK': { name: 'Рустам', role: 'admin', emoji: '👑' },
+            'LIZOK': { name: 'Лиза', role: 'admin', emoji: '👸' },
+            'BESTMAN2024': { name: 'Свидетель', role: 'moderator', emoji: '🎩' }
+        };
+
+        const MONEY_CODES = {
+            'GORKO': 500,
+            'BOMBOM': 300,
+            'HONEYMOON': 1000,
+            'PARTY': 250
+        };
+
+        const SECRET_ROOMS = {
+            'STEAM_2024': { name: 'Комната Пацанов 🎮', icon: '🍺' },
+            'BESTY': { name: 'Комната Девчонок 💅', icon: '💋' },
+            'SURPRISE': { name: 'Сюрприз для молодоженов 🎁', icon: '🎁' }
+        };
+
+        const EMOJIS = ['😎', '🥳', '🎉', '💃', '🕺', '🤵', '👰', '🍾', '💖', '🎊', '😜', '🤪', '🦄', '🌟', '🎭', '🎪'];
+
+        const TOASTS = [
+            'Дорогие Рустам и Лиза! Желаю вам, чтобы ваша любовь была как интернет - безлимитной, быстрой и всегда доступной! 🚀',
+            'Пусть ваша семейная жизнь будет как хорошее вино - с годами только лучше! 🍷',
+            'Желаю вам, чтобы в вашем доме всегда было три вещи: любовь, смех и вкусная еда! 🏠❤️',
+            'Пусть ваша жизнь будет как сказка - долгой и счастливой! ✨',
+            'Совет да любовь! Пусть ваши сердца бьются в унисон! 💑'
+        ];
+
+        const BINGO_ITEMS = [
+            'Рустам поправил галстук',
+            'Лиза заплакала',
+            'Кто-то украл цветок',
+            'Драка на танцполе',
+            'Бабушка танцует',
+            'Тост со слезами',
+            'Кто-то уснул',
+            'Фотосессия',
+            'Конкурс',
+            'Поцелуй',
+            'Разбился бокал',
+            'Кто-то поет',
+            'Танцы до упаду',
+            'Объятия',
+            'Селфи с молодоженами',
+            'Шутка про тещу'
+        ];
+
+        const CHALLENGES = [
+            'Скажи тост за молодоженов! 🥂',
+            'Сделай селфи с невестой! 📸',
+            'Станцуй с женихом! 💃',
+            'Расскажи смешную историю про Рустама! 😄',
+            'Спой песню про любовь! 🎤',
+            'Обними 5 человек! 🤗',
+            'Придумай новое прозвище для пары! 💑',
+            'Покажи свой лучший танец! 🕺',
+            'Сделай комплимент всем за столом! ❤️',
+            'Расскажи анекдот! 😂'
+        ];
+
+        let currentUser = null;
+        let currentRoom = 'main';
+        let bingoCard = [];
+        let checkedBingo = new Set();
+        let messages = [];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
+            
+            // Загружаем сообщения из localStorage
+            const savedMessages = localStorage.getItem('wedding_messages');
+            if (savedMessages) {
+                messages = JSON.parse(savedMessages);
+            }
+            
+            // Проверяем, есть ли сохраненный пользователь
+            const savedUser = localStorage.getItem('wedding_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainScreen();
+            }
+        });
+
+        // Вход
+        function login() {
+            console.log('Функция login вызвана');
+            
+            const nameInput = document.getElementById('userName');
+            const codeInput = document.getElementById('secretCode');
+            const errorDiv = document.getElementById('loginError');
+            
+            const name = nameInput.value.trim();
+            const code = codeInput.value.toUpperCase().trim();
+            
+            console.log('Имя:', name, 'Код:', code);
+            
+            // Очищаем ошибку
+            errorDiv.textContent = '';
+            
+            if (!name) {
+                errorDiv.textContent = 'Введи имя!';
+                nameInput.focus();
+                return;
+            }
+            
+            let role = 'guest';
+            let emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+            let bonusCoins = 0;
+            
+            // Проверяем админ коды
+            if (code && ADMIN_CODES[code]) {
+                const adminData = ADMIN_CODES[code];
+                if (adminData.name.toLowerCase() === name.toLowerCase()) {
+                    role = adminData.role;
+                    emoji = adminData.emoji;
+                    bonusCoins += 5000;
+                } else {
+                    errorDiv.textContent = 'Неверное имя для этого кода! 😏';
+                    return;
+                }
+            }
+            
+            // Проверяем денежные коды
+            if (code && MONEY_CODES[code]) {
+                bonusCoins += MONEY_CODES[code];
+            }
+            
+            // Создаем пользователя
+            currentUser = {
+                id: 'user_' + Date.now(),
+                name: name,
+                emoji: emoji,
+                role: role,
+                coins: 1000 + bonusCoins,
+                createdAt: Date.now()
+            };
+            
+            console.log('Создан пользователь:', currentUser);
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            
+            // Показываем главный экран
+            showMainScreen();
+        }
+
+        // Показать главный экран
+        function showMainScreen() {
+            console.log('Показываем главный экран');
+            
+            // Скрываем экран входа
+            document.getElementById('loginScreen').style.display = 'none';
+            
+            // Показываем главный экран
+            document.getElementById('mainScreen').style.display = 'flex';
+            
+            // Обновляем информацию
+            document.getElementById('userEmoji').textContent = currentUser.emoji;
+            document.getElementById('displayName').textContent = currentUser.name;
+            document.getElementById('balance').textContent = currentUser.coins;
+            document.getElementById('profileEmoji').textContent = currentUser.emoji;
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileBalance').textContent = currentUser.coins;
+            
+            // Статус
+            let status = 'Гость 🎉';
+            if (currentUser.role === 'admin') {
+                status = 'Организатор 👑';
+                document.getElementById('adminBadge').style.display = 'inline';
+                document.getElementById('adminPanel').style.display = 'block';
+            } else if (currentUser.role === 'moderator') {
+                status = 'Свидетель 🎩';
+                document.getElementById('adminBadge').style.display = 'inline';
+                document.getElementById('adminPanel').style.display = 'block';
+            }
+            document.getElementById('profileStatus').textContent = status;
+            
+            // Загружаем данные
+            loadMessages();
+            generateBingoCard();
+            loadRooms();
+        }
+
+        // Переключение вкладок
+        function switchTab(tabName) {
+            console.log('Переключаем вкладку:', tabName);
+            
+            const tabs = ['chat', 'games', 'rooms', 'profile'];
+            tabs.forEach(tab => {
+                const tabElement = document.getElementById(tab + 'Tab');
+                if (tabElement) {
+                    tabElement.style.display = tab === tabName ? 'block' : 'none';
+                }
+            });
+            
+            // Обновляем активную вкладку
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Находим нужную кнопку
+            const buttons = document.querySelectorAll('.tab');
+            const tabIndex = tabs.indexOf(tabName);
+            if (buttons[tabIndex]) {
+                buttons[tabIndex].classList.add('active');
+            }
+        }
+
+        // Отправка сообщений
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            const message = {
+                id: Date.now(),
+                userId: currentUser.id,
+                userName: currentUser.name,
+                text: text,
+                emoji: currentUser.emoji,
+                timestamp: Date.now(),
+                room: currentRoom
+            };
+            
+            // Добавляем сообщение
+            messages.push(message);
+            localStorage.setItem('wedding_messages', JSON.stringify(messages));
+            
+            // Очищаем input
+            input.value = '';
+            
+            // Обновляем чат
+            loadMessages();
+            
+            // Начисляем монеты
+            if (currentUser.coins < 1500) {
+                currentUser.coins += 5;
+                updateBalance();
+            }
+        }
+
+        // Быстрые сообщения
+        function quickMessage(text) {
+            const input = document.getElementById('messageInput');
+            if (input) {
+                input.value = text;
+                sendMessage();
+            }
+        }
+
+        // Загрузка сообщений
+        function loadMessages() {
+            const messagesDiv = document.getElementById('messages');
+            if (!messagesDiv) return;
+            
+            messagesDiv.innerHTML = '';
+            
+            const filteredMessages = messages
+                .filter(msg => msg.room === currentRoom)
+                .slice(-50);
+            
+            filteredMessages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+                
+                const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <span>${msg.emoji}</span>
+                        <span class="message-user">${msg.userName}</span>
+                        <span class="message-time">${time}</span>
+                    </div>
+                    <div class="message-text">${msg.text}</div>
+                `;
+                
+                messagesDiv.appendChild(messageDiv);
+            });
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Генерация тоста
+        function generateToast() {
+            if (currentUser.coins < 50) {
+                alert('Недостаточно монет! Нужно 50 🪙');
+                return;
+            }
+            
+            currentUser.coins -= 50;
+            updateBalance();
+            
+            const toast = TOASTS[Math.floor(Math.random() * TOASTS.length)];
+            const input = document.getElementById('messageInput');
+            if (input) {
+                input.value = toast;
+                sendMessage();
+            }
+        }
+
+        // Бинго
+        function generateBingoCard() {
+            const shuffled = [...BINGO_ITEMS].sort(() => Math.random() - 0.5);
+            bingoCard = shuffled.slice(0, 9);
+            checkedBingo.clear();
+            
+            const bingoGrid = document.getElementById('bingoGrid');
+            if (!bingoGrid) return;
+            
+            bingoGrid.innerHTML = '';
+            
+            bingoCard.forEach(item => {
+                const cell = document.createElement('div');
+                cell.className = 'bingo-cell';
+                cell.textContent = item;
+                cell.onclick = function() {
+                    toggleBingoItem(item, cell);
+                };
+                bingoGrid.appendChild(cell);
+            });
+        }
+
+        function toggleBingoItem(item, cell) {
+            if (checkedBingo.has(item)) {
+                checkedBingo.delete(item);
+                cell.classList.remove('checked');
+            } else {
+                checkedBingo.add(item);
+                cell.classList.add('checked');
+            }
+            
+            checkBingo();
+        }
+
+        function checkBingo() {
+            if (!bingoCard.length) return;
+            
+            const lines = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            
+            for (const line of lines) {
+                if (line.every(index => checkedBingo.has(bingoCard[index]))) {
+                    currentUser.coins += 1000;
+                    updateBalance();
+                    alert('🎉 БИНГО! Ты выиграл 1000 монет!');
+                    generateBingoCard();
+                    break;
+                }
+            }
+        }
+
+        // Битва полов
+        function startBattle() {
+            if (currentUser.coins < 300) {
+                alert('Недостаточно монет! Нужно 300 🪙');
+                return;
+            }
+            
+            currentUser.coins -= 300;
+            updateBalance();
+            
+            const questions = [
+                { q: 'Кто первый признался в любви?', options: ['Рустам', 'Лиза', 'Оба сразу'] },
+                { q: 'Кто лучше готовит?', options: ['Рустам', 'Лиза', 'Доставка еды'] },
+                { q: 'Кто дольше собирается?', options: ['Рустам', 'Лиза', 'Оба по 2 часа'] }
+            ];
+            
+            const question = questions[Math.floor(Math.random() * questions.length)];
+            const battleArea = document.getElementById('battleArea');
+            
+            if (battleArea) {
+                battleArea.innerHTML = `
+                    <h4 style="margin: 15px 0;">${question.q}</h4>
+                    ${question.options.map((opt, i) => `
+                        <button onclick="voteBattle(${i})" class="btn-game" style="margin: 5px; width: 100%;">
+                            ${opt}
+                        </button>
+                    `).join('')}
+                `;
+            }
+        }
+
+        function voteBattle(optionIndex) {
+            const battleArea = document.getElementById('battleArea');
+            if (battleArea) {
+                battleArea.innerHTML = '<p style="margin: 15px 0;">Голос учтен! ✅</p>';
+            }
+            currentUser.coins += 50;
+            updateBalance();
+        }
+
+        // Случайный конкурс
+        function randomChallenge() {
+            if (currentUser.coins < 100) {
+                alert('Недостаточно монет! Нужно 100 🪙');
+                return;
+            }
+            
+            currentUser.coins -= 100;
+            updateBalance();
+            
+            const challenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
+            const challengeResult = document.getElementById('challengeResult');
+            
+            if (challengeResult) {
+                challengeResult.innerHTML = `
+                    <h4 style="margin: 15px 0;">Твое задание:</h4>
+                    <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
+                    <button onclick="completeChallenge()" class="btn-game">Готово! +200🪙</button>
+                `;
+            }
+        }
+
+        function completeChallenge() {
+            currentUser.coins += 200;
+            updateBalance();
+            const challengeResult = document.getElementById('challengeResult');
+            if (challengeResult) {
+                challengeResult.innerHTML = '<p style="margin: 15px 0;">Красавчик! 🎉</p>';
+            }
+        }
+
+        // Комнаты
+        function loadRooms() {
+            const roomsList = document.getElementById('roomsList');
+            if (!roomsList) return;
+            
+            const rooms = [
+                { id: 'main', name: '💬 Общий чат' },
+                { id: 'toasts', name: '🥂 Тосты и поздравления' },
+                { id: 'photos', name: '📸 Фото и видео' }
+            ];
+            
+            roomsList.innerHTML = rooms.map(room => `
+                <div class="room-card" onclick="switchRoom('${room.id}')">
+                    ${room.name}
+                </div>
+            `).join('');
+        }
+
+        function switchRoom(roomId) {
+            currentRoom = roomId;
+            loadMessages();
+        }
+
+        function joinSecretRoom() {
+            const passwordInput = document.getElementById('roomPassword');
+            const password = passwordInput.value.toUpperCase().trim();
+            
+            if (SECRET_ROOMS[password]) {
+                const room = SECRET_ROOMS[password];
+                currentRoom = password.toLowerCase();
+                loadMessages();
+                alert('Вы вошли в комнату: ' + room.name);
+                passwordInput.value = '';
+            } else {
+                alert('Неверный пароль! 😜');
+            }
+        }
+
+        // Обновление баланса
+        function updateBalance() {
+            document.getElementById('balance').textContent = currentUser.coins;
+            document.getElementById('profileBalance').textContent = currentUser.coins;
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+        }
+
+        // Админ функции
+        function giveCoinsToAll() {
+            if (currentUser.role === 'admin' || currentUser.role === 'moderator') {
+                alert('Всем гостям начислено по 500 монет! 🎉');
+            }
+        }
+
+        // Выход
+        function logout() {
+            localStorage.removeItem('wedding_user');
+            location.reload();
+        }
+
+        console.log('Скрипт загружен успешно!');
+    </script>
 </body>
 </html>
