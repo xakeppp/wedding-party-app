@@ -10,26 +10,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
             --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --gradient-3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --gradient-4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            --gradient-5: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
             --gold: #ffd700;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             background-attachment: fixed;
             min-height: 100vh;
@@ -37,6 +28,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .screen {
@@ -50,6 +42,7 @@
             min-height: calc(100vh - 40px);
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .login-box {
@@ -61,16 +54,8 @@
             justify-content: center;
         }
 
-        .wedding-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
+        .wedding-icon { font-size: 64px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
         .title-gradient {
             font-size: 42px;
@@ -82,767 +67,308 @@
             font-weight: 800;
         }
 
-        .subtitle {
-            color: #666;
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
+        .subtitle { color: #666; font-size: 18px; margin-bottom: 30px; }
 
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 14px; }
         .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: #f8f9fa;
+            width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 15px;
+            font-size: 16px; transition: all 0.3s; background: #f8f9fa;
         }
-
         .input-group input:focus, .input-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
+            outline: none; border-color: var(--primary); background: white;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .btn-primary {
-            width: 100%;
-            padding: 18px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
+            width: 100%; padding: 18px; background: var(--gradient); color: white;
+            border: none; border-radius: 15px; font-size: 18px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 10px; margin: 20px 0;
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-icon { font-size: 24px; }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-        }
+        .error { color: #e74c3c; margin: 10px 0; font-weight: bold; min-height: 24px; }
+        .success { color: #4caf50; margin: 10px 0; font-weight: bold; min-height: 24px; }
 
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-icon {
-            font-size: 24px;
-        }
-
-        .error {
-            color: #e74c3c;
-            margin: 10px 0;
-            font-weight: bold;
-            min-height: 24px;
-        }
-
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
+        .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .info-card {
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #666;
+            padding: 15px; background: #f8f9fa; border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            font-size: 12px; color: #666;
         }
-
-        .info-icon {
-            font-size: 24px;
-        }
+        .info-icon { font-size: 24px; }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: var(--gradient);
-            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; background: var(--gradient); color: white;
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .user-info { display: flex; align-items: center; gap: 12px; }
         .user-emoji {
-            font-size: 36px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            cursor: pointer;
+            font-size: 36px; width: 50px; height: 50px; display: flex;
+            align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.2); border-radius: 50%; cursor: pointer;
         }
-
-        .user-name {
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
+        .user-name { font-weight: bold; font-size: 18px; cursor: pointer; }
+        .user-name:hover { text-decoration: underline; }
         .badge {
-            background: rgba(255, 255, 255, 0.3);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-top: 2px;
-            display: inline-block;
+            background: rgba(255, 255, 255, 0.3); padding: 4px 10px;
+            border-radius: 12px; font-size: 12px; margin-top: 2px; display: inline-block;
         }
-
         .balance {
-            background: rgba(255, 255, 255, 0.3);
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 18px;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
+            background: rgba(255, 255, 255, 0.3); padding: 12px 20px;
+            border-radius: 25px; font-weight: bold; font-size: 18px;
+            backdrop-filter: blur(10px); cursor: pointer;
         }
 
         .tabs {
-            display: flex;
-            background: white;
-            border-bottom: 2px solid #f0f0f0;
-            padding: 5px;
-            gap: 5px;
-            overflow-x: auto;
+            display: flex; background: white; border-bottom: 2px solid #f0f0f0;
+            padding: 5px; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;
         }
-
         .tab {
-            flex: 1;
-            min-width: 70px;
-            padding: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #666;
+            flex: 1; min-width: 60px; padding: 8px 5px; background: none;
+            border: none; cursor: pointer; font-size: 11px; transition: all 0.3s;
+            border-radius: 15px; display: flex; flex-direction: column;
+            align-items: center; gap: 3px; color: #666;
         }
-
-        .tab-icon {
-            font-size: 24px;
-        }
-
+        .tab-icon { font-size: 20px; }
         .tab.active {
-            background: var(--gradient);
-            color: white;
-            font-weight: bold;
+            background: var(--gradient); color: white; font-weight: bold;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
+        .tab:hover:not(.active) { background: #f8f9fa; }
+        .tab-content { padding: 20px; flex: 1; overflow-y: auto; }
 
-        .tab:hover:not(.active) {
-            background: #f8f9fa;
-        }
-
-        .tab-content {
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 200px);
-            min-height: 400px;
-        }
-
+        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 400px; }
         .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 20px;
+            flex: 1; overflow-y: auto; padding: 15px;
+            background: #f8f9fa; border-radius: 20px;
         }
-
         .message {
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            animation: slideIn 0.3s ease;
-            cursor: pointer;
+            margin-bottom: 15px; padding: 15px; background: white;
+            border-radius: 15px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease; cursor: pointer;
         }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        .message.own { background: var(--gradient); color: white; margin-left: 20px; }
+        .message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .message-user { font-weight: bold; font-size: 14px; cursor: pointer; }
+        .message-user:hover { text-decoration: underline; }
+        .message.own .message-user { color: white; }
+        .message-time { font-size: 12px; opacity: 0.7; }
+        .message-text { font-size: 15px; line-height: 1.4; }
 
-        .message.own {
-            background: var(--gradient);
-            color: white;
-            margin-left: 20px;
-        }
-
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        .message-user {
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .message.own .message-user {
-            color: white;
-        }
-
-        .message-time {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        .message-text {
-            font-size: 15px;
-            line-height: 1.4;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 8px;
-            padding: 10px 0;
-            flex-wrap: wrap;
-        }
-
+        .quick-actions { display: flex; gap: 8px; padding: 10px 0; flex-wrap: wrap; }
         .quick-btn {
-            padding: 10px 15px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
+            padding: 10px 15px; background: white; border: 2px solid #e0e0e0;
+            border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.3s;
         }
-
         .quick-btn:hover {
-            background: var(--gradient);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
+            background: var(--gradient); color: white;
+            border-color: transparent; transform: translateY(-2px);
         }
 
-        .message-input {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-        }
-
+        .message-input { display: flex; gap: 10px; padding: 10px 0; }
         .message-input input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 15px;
+            flex: 1; padding: 15px; border: 2px solid #e0e0e0;
+            border-radius: 25px; font-size: 15px;
         }
-
-        .message-input input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
+        .message-input input:focus { outline: none; border-color: var(--primary); }
         .send-btn {
-            width: 50px;
-            height: 50px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            width: 50px; height: 50px; background: var(--gradient); color: white;
+            border: none; border-radius: 50%; cursor: pointer; font-size: 20px;
+            transition: all 0.3s; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
+        .send-btn:hover { transform: scale(1.1); }
 
-        .send-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .section-title {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .games-grid {
-            display: grid;
-            gap: 20px;
-        }
-
+        .section-title { font-size: 28px; margin-bottom: 20px; color: #333; }
+        .games-grid { display: grid; gap: 20px; }
         .game-card {
-            padding: 25px;
-            background: white;
-            border-radius: 20px;
+            padding: 25px; background: white; border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
-
-        .game-card.gradient-1 {
-            background: var(--gradient-1);
-            color: white;
-        }
-
-        .game-card.gradient-2 {
-            background: var(--gradient-2);
-            color: white;
-        }
-
-        .game-card.gradient-3 {
-            background: var(--gradient-3);
-            color: white;
-        }
-
-        .game-card.gradient-4 {
-            background: var(--gradient-4);
-            color: white;
-        }
-
-        .game-card.gradient-5 {
-            background: var(--gradient-5);
-            color: white;
-        }
-
-        .game-card h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .game-card p {
-            margin-bottom: 20px;
-            opacity: 0.9;
-        }
+        .game-card h3 { font-size: 24px; margin-bottom: 10px; }
+        .game-card p { margin-bottom: 20px; opacity: 0.9; }
 
         .btn-game {
-            padding: 15px 25px;
-            background: white;
-            color: #333;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 15px 25px; background: white; color: #333;
+            border: none; border-radius: 25px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+        .btn-game:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
 
-        .btn-game:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .bingo-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-
+        .bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .bingo-cell {
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
-            text-align: center;
-            transition: all 0.3s;
-            color: white;
+            padding: 20px; background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px;
+            cursor: pointer; font-size: 12px; text-align: center;
+            transition: all 0.3s; color: white;
         }
-
-        .bingo-cell:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .bingo-cell.checked {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-weight: bold;
-        }
+        .bingo-cell:hover { background: rgba(255, 255, 255, 0.3); }
+        .bingo-cell.checked { background: rgba(255, 255, 255, 0.9); color: #333; font-weight: bold; }
 
         .room-card {
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            font-size: 18px;
+            padding: 20px; background: white; border-radius: 20px;
+            margin-bottom: 15px; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); font-size: 18px;
         }
+        .room-card:hover { transform: translateX(10px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
+        .room-card.active-room { background: var(--gradient); color: white; }
 
-        .room-card:hover {
-            transform: translateX(10px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .room-card.active-room {
-            background: var(--gradient);
-            color: white;
-        }
-
-        .secret-room {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-        }
-
+        .secret-room { margin-top: 30px; display: flex; gap: 15px; }
         .secret-room input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 16px;
+            flex: 1; padding: 15px; border: 2px solid #e0e0e0;
+            border-radius: 15px; font-size: 16px;
         }
-
-        .secret-room input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
+        .secret-room input:focus { outline: none; border-color: var(--primary); }
 
         .profile-card {
-            text-align: center;
-            padding: 30px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            text-align: center; padding: 30px; background: white;
+            border-radius: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
         }
-
-        .profile-avatar {
-            font-size: 80px;
-            margin-bottom: 15px;
-        }
-
-        .profile-card h3 {
-            font-size: 28px;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .profile-status {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
+        .profile-avatar { font-size: 80px; margin-bottom: 15px; }
+        .profile-card h3 { font-size: 28px; margin-bottom: 5px; color: #333; }
+        .profile-status { color: #666; margin-bottom: 15px; }
         .profile-balance {
-            font-size: 20px;
-            font-weight: bold;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 20px; font-weight: bold;
+            background: var(--gradient); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
         }
 
         .profile-section {
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            padding: 20px; background: white; border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
         }
-
-        .profile-section h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
+        .profile-section h3 { margin-bottom: 15px; color: #333; }
         .about-me {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 100px;
+            width: 100%; padding: 15px; border: 2px solid #e0e0e0;
+            border-radius: 15px; font-size: 14px; resize: vertical; min-height: 100px;
         }
 
-        .code-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
+        .code-input-group { display: flex; gap: 10px; margin-bottom: 10px; }
         .code-input-group input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 16px;
+            flex: 1; padding: 15px; border: 2px solid #e0e0e0;
+            border-radius: 15px; font-size: 16px;
         }
 
         .admin-section {
-            padding: 25px;
-            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            border-radius: 20px;
-            margin-bottom: 20px;
+            padding: 25px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border-radius: 20px; margin-bottom: 20px;
         }
-
-        .admin-section h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
+        .admin-section h3 { margin-bottom: 15px; color: #333; }
 
         .btn-logout {
-            width: 100%;
-            padding: 15px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 100%; padding: 15px; background: #e74c3c; color: white;
+            border: none; border-radius: 15px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s;
         }
+        .btn-logout:hover { background: #c0392b; transform: translateY(-2px); }
 
-        .btn-logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-
-        .shop-grid {
-            display: grid;
-            gap: 15px;
-        }
-
+        .shop-grid { display: grid; gap: 15px; }
         .shop-item {
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
+            padding: 20px; background: white; border-radius: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
         }
+        .shop-item-info { flex: 1; }
+        .shop-item-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .shop-item-price { color: var(--gold); font-weight: bold; }
 
-        .shop-item-info {
-            flex: 1;
-        }
-
-        .shop-item-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .shop-item-price {
-            color: var(--gold);
-            font-weight: bold;
-        }
-
-        .transaction-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
+        .transaction-list { max-height: 300px; overflow-y: auto; }
         .transaction-item {
-            padding: 15px;
-            background: white;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 15px; background: white; border-radius: 15px;
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
+        .transaction-positive { color: #4caf50; font-weight: bold; }
+        .transaction-negative { color: #e74c3c; font-weight: bold; }
 
-        .transaction-positive {
-            color: #4caf50;
-            font-weight: bold;
-        }
-
-        .transaction-negative {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .admin-controls {
-            display: grid;
-            gap: 15px;
-        }
-
-        .admin-control-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
+        .admin-controls { display: grid; gap: 15px; }
+        .admin-control-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .admin-control-group input {
-            flex: 1;
-            min-width: 120px;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            flex: 1; min-width: 120px; padding: 10px;
+            border: 2px solid #e0e0e0; border-radius: 10px;
         }
-
         .btn-admin {
-            padding: 10px 20px;
-            background: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            padding: 10px 20px; background: white; border: none;
+            border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.3s;
         }
-
-        .btn-admin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
+        .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
 
         .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5); display: flex;
+            justify-content: center; align-items: center; z-index: 1000;
         }
-
         .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
+            background: white; padding: 30px; border-radius: 20px;
+            max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto;
         }
+        .modal-content h3 { margin-bottom: 20px; color: #333; }
 
-        .modal-content h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        /* Таблица лидеров */
-        .leaderboard {
-            display: grid;
-            gap: 10px;
-        }
-
+        .leaderboard { display: grid; gap: 10px; }
         .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex; align-items: center; gap: 10px; padding: 15px;
+            background: white; border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); cursor: pointer;
+        }
+        .leaderboard-item:hover { background: #f8f9fa; }
+        .leaderboard-rank { font-size: 24px; font-weight: bold; min-width: 30px; text-align: center; }
+        .leaderboard-rank.gold { color: #ffd700; }
+        .leaderboard-rank.silver { color: #c0c0c0; }
+        .leaderboard-rank.bronze { color: #cd7f32; }
+        .leaderboard-info { flex: 1; }
+        .leaderboard-name { font-weight: bold; font-size: 16px; }
+        .leaderboard-value { font-weight: bold; font-size: 18px; }
+
+        /* Эффекты конфетти */
+        .confetti-piece {
+            position: fixed; width: 10px; height: 10px;
+            z-index: 9999; pointer-events: none;
+            animation: confettiFall 3s linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
-        .leaderboard-rank {
+        /* Фейерверк */
+        .firework {
+            position: fixed; width: 5px; height: 5px;
+            border-radius: 50%; z-index: 9999; pointer-events: none;
+            animation: fireworkExplode 1.5s ease-out forwards;
+        }
+        @keyframes fireworkExplode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+
+        /* Дождь из сердечек */
+        .heart-rain {
+            position: fixed; z-index: 9999; pointer-events: none;
+            animation: heartFall 3s linear forwards;
             font-size: 24px;
-            font-weight: bold;
-            min-width: 30px;
-            text-align: center;
         }
-
-        .leaderboard-rank.gold {
-            color: #ffd700;
-        }
-
-        .leaderboard-rank.silver {
-            color: #c0c0c0;
-        }
-
-        .leaderboard-rank.bronze {
-            color: #cd7f32;
-        }
-
-        .leaderboard-info {
-            flex: 1;
-        }
-
-        .leaderboard-name {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .leaderboard-stats {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .leaderboard-value {
-            font-weight: bold;
-            font-size: 18px;
+        @keyframes heartFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
 
         @media (max-width: 640px) {
-            .screen {
-                margin: 0;
-                border-radius: 0;
-                min-height: 100vh;
-            }
-            
-            .title-gradient {
-                font-size: 32px;
-            }
-            
-            .info-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .games-grid {
-                grid-template-columns: 1fr;
-            }
+            .screen { margin: 0; border-radius: 0; min-height: 100vh; }
+            .title-gradient { font-size: 32px; }
+            .info-cards { grid-template-columns: 1fr; }
+            .games-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
     <div id="loginScreen" class="screen">
         <div class="login-box">
             <div class="wedding-icon">💍</div>
@@ -865,31 +391,18 @@
             </button>
             
             <div id="loginError" class="error"></div>
-            
-            <div class="info-cards">
-                <div class="info-card">
-                    <span class="info-icon">💰</span>
-                    <span>1000 монет каждому</span>
-                </div>
-                <div class="info-card">
-                    <span class="info-icon">🎮</span>
-                    <span>Игры и конкурсы</span>
-                </div>
-                <div class="info-card">
-                    <span class="info-icon">💬</span>
-                    <span>Общий чат</span>
-                </div>
-            </div>
+            <div id="loginSuccess" class="success"></div>
         </div>
     </div>
 
+    <!-- Main Screen -->
     <div id="mainScreen" class="screen" style="display:none">
         <div class="header">
             <div class="user-info">
                 <span id="userEmoji" class="user-emoji" onclick="showUserInfo()"></span>
                 <div>
                     <div class="user-name" id="displayName" onclick="showUserInfo()"></div>
-                    <span id="adminBadge" class="badge" style="display:none">⭐ Организатор</span>
+                    <span id="adminBadge" class="badge" style="display:none"></span>
                 </div>
             </div>
             <div class="balance" onclick="showTransactions()">
@@ -898,30 +411,12 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('chat')">
-                <span class="tab-icon">💬</span>
-                <span>Чат</span>
-            </button>
-            <button class="tab" onclick="switchTab('games')">
-                <span class="tab-icon">🎮</span>
-                <span>Игры</span>
-            </button>
-            <button class="tab" onclick="switchTab('leaders')">
-                <span class="tab-icon">🏆</span>
-                <span>Лидеры</span>
-            </button>
-            <button class="tab" onclick="switchTab('shop')">
-                <span class="tab-icon">🛍️</span>
-                <span>Магазин</span>
-            </button>
-            <button class="tab" onclick="switchTab('rooms')">
-                <span class="tab-icon">🚪</span>
-                <span>Комнаты</span>
-            </button>
-            <button class="tab" onclick="switchTab('profile')">
-                <span class="tab-icon">👤</span>
-                <span>Профиль</span>
-            </button>
+            <button class="tab active" onclick="switchTab('chat')"><span class="tab-icon">💬</span><span>Чат</span></button>
+            <button class="tab" onclick="switchTab('games')"><span class="tab-icon">🎮</span><span>Игры</span></button>
+            <button class="tab" onclick="switchTab('leaders')"><span class="tab-icon">🏆</span><span>Лидеры</span></button>
+            <button class="tab" onclick="switchTab('shop')"><span class="tab-icon">🛍️</span><span>Магазин</span></button>
+            <button class="tab" onclick="switchTab('rooms')"><span class="tab-icon">🚪</span><span>Комнаты</span></button>
+            <button class="tab" onclick="switchTab('profile')"><span class="tab-icon">👤</span><span>Профиль</span></button>
         </div>
 
         <div id="chatTab" class="tab-content">
@@ -946,37 +441,33 @@
         <div id="gamesTab" class="tab-content" style="display:none">
             <h2 class="section-title">🎮 Игры и развлечения</h2>
             <div class="games-grid">
-                <div class="game-card gradient-1">
+                <div class="game-card">
                     <h3>🎯 Свадебное Бинго</h3>
                     <p>Отмечай события на свадьбе!</p>
                     <div id="bingoGrid" class="bingo-grid"></div>
                 </div>
                 
-                <div class="game-card gradient-2">
+                <div class="game-card">
                     <h3>⚔️ Битва полов</h3>
-                    <p>Ответь на вопросы о паре!</p>
                     <button onclick="startBattle()" class="btn-game">Начать (300🪙)</button>
                     <div id="battleArea"></div>
                 </div>
                 
-                <div class="game-card gradient-3">
+                <div class="game-card">
                     <h3>🎲 Случайный конкурс</h3>
-                    <p>Кто выполнит задание?</p>
                     <button onclick="randomChallenge()" class="btn-game">Выбрать (100🪙)</button>
                     <div id="challengeResult"></div>
                 </div>
                 
-                <div class="game-card gradient-4">
+                <div class="game-card">
                     <h3>🎰 Колесо фортуны</h3>
-                    <p>Испытай удачу!</p>
                     <button onclick="spinWheel()" class="btn-game">Крутить (200🪙)</button>
                     <div id="wheelResult"></div>
                 </div>
                 
-                <div class="game-card gradient-5">
+                <div class="game-card">
                     <h3>💑 Угадай пару</h3>
-                    <p>Насколько хорошо ты знаешь молодоженов?</p>
-                    <button onclick="startQuiz()" class="btn-game">Начать викторину (150🪙)</button>
+                    <button onclick="startQuiz()" class="btn-game">Начать (150🪙)</button>
                     <div id="quizArea"></div>
                 </div>
             </div>
@@ -1009,9 +500,7 @@
                 <div class="profile-avatar" id="profileEmoji"></div>
                 <h3 id="profileName"></h3>
                 <p class="profile-status" id="profileStatus"></p>
-                <div class="profile-balance">
-                    💰 <span id="profileBalance">0</span> монет
-                </div>
+                <div class="profile-balance">💰 <span id="profileBalance">0</span> монет</div>
                 <button onclick="showTransactions()" class="btn-game" style="margin-top: 15px;">📊 История операций</button>
             </div>
             
@@ -1048,6 +537,7 @@
         </div>
     </div>
 
+    <!-- Modals -->
     <div id="transactionsModal" class="modal" style="display:none">
         <div class="modal-content">
             <h3>📊 История операций</h3>
@@ -1064,8 +554,35 @@
         </div>
     </div>
 
+    <div id="passwordModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h3>🔐 Введите пароль</h3>
+            <p>Пользователь <span id="passwordUserName"></span> уже существует. Введите пароль:</p>
+            <div class="input-group">
+                <input type="password" id="userPassword" placeholder="Пароль">
+            </div>
+            <button onclick="verifyPassword()" class="btn-game" style="width:100%;">Войти</button>
+            <button onclick="closePasswordModal()" class="btn-logout" style="margin-top:10px;">Отмена</button>
+            <div id="passwordError" class="error"></div>
+        </div>
+    </div>
+
+    <div id="createPasswordModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h3>🔐 Создайте пароль</h3>
+            <p>Придумайте пароль для вашего профиля:</p>
+            <div class="input-group">
+                <input type="password" id="newUserPassword" placeholder="Пароль">
+            </div>
+            <div class="input-group">
+                <input type="password" id="confirmUserPassword" placeholder="Повторите пароль">
+            </div>
+            <button onclick="createPassword()" class="btn-game" style="width:100%;">Создать</button>
+            <div id="createPasswordError" class="error"></div>
+        </div>
+    </div>
+
     <script>
-        // Firebase конфигурация
         const firebaseConfig = {
             apiKey: "AIzaSyDPyg2vmUXjfwevvbIouhb3dsXedrIuW4A",
             authDomain: "wedding-party-app-ae1f3.firebaseapp.com",
@@ -1079,11 +596,10 @@
         
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        
-        // Конфигурация
+
         const ADMIN_CODES = {
-            'DRON777': { name: 'Андрей', role: 'god', emoji: '🌟', coins: 1000000 },
-            'RUSTIK2024': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
+            'DRON7': { name: 'Андрей', role: 'god', emoji: '🌟', coins: 1000000 },
+            'RUSTIK2': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
             'LIZOK': { name: 'Лиза', role: 'superadmin', emoji: '👸' },
             'SVEDETEL2024': { name: 'Свидетель', role: 'moderator', emoji: '🎩' }
         };
@@ -1110,7 +626,7 @@
         const EMOJIS = ['😎', '🥳', '🎉', '💃', '🕺', '🤵', '👰', '🍾', '💖', '🎊', '😜', '🤪', '🦄', '🌟', '🎭', '🎪'];
 
         const TOASTS = [
-            'Дорогие Рустам и Лиза! Желаю вам, чтобы ваша любовь была как интернет - безлимитной, быстрой и всегда доступной! 🚀',
+            'Дорогие Рустам и Лиза! Желаю вам, чтобы ваша любовь была как интернет - безлимитной и быстрой! 🚀',
             'Пусть ваша семейная жизнь будет как хорошее вино - с годами только лучше! 🍷',
             'Желаю вам, чтобы в вашем доме всегда было три вещи: любовь, смех и вкусная еда! 🏠❤️',
             'Пусть ваша жизнь будет как сказка - долгой и счастливой! ✨',
@@ -1134,21 +650,27 @@
         ];
 
         const SHOP_ITEMS = [
-            { id: 'pin_message', name: '📌 Закрепить сообщение', price: 200, description: 'Топ чата на 10 минут' },
-            { id: 'confetti', name: '🎊 Конфетти в чат', price: 150, description: 'Запусти конфетти!' },
-            { id: 'fireworks', name: '🎆 Фейерверк', price: 500, description: 'Устрой салют!' },
-            { id: 'heart_rain', name: '💖 Дождь из сердечек', price: 300, description: 'Завали чат сердечками!' },
-            { id: 'crown', name: '👑 Стать королем вечера', price: 1000, description: 'Корона на 1 час' }
+            { id: 'confetti', name: '🎊 Конфетти', price: 150, description: 'Запустить конфетти для всех!' },
+            { id: 'fireworks', name: '🎆 Фейерверк', price: 500, description: 'Устроить салют!' },
+            { id: 'heart_rain', name: '💖 Дождь из сердечек', price: 300, description: 'Завалить чат сердечками!' },
+            { id: 'crown', name: '👑 Король вечера', price: 1000, description: 'Получить корону на 1 час' },
+            { id: 'pin_message', name: '📌 Закрепить', price: 200, description: 'Закрепить сообщение в топе' },
+            { id: 'nickname', name: '✏️ Сменить ник', price: 400, description: 'Поменять имя на 1 час' },
+            { id: 'invisible', name: '🫥 Невидимка', price: 600, description: 'Скрыться из чата на 30 минут' },
+            { id: 'megaphone', name: '📢 Мегафон', price: 350, description: 'Отправить сообщение всем комнатам' },
+            { id: 'love_bomb', name: '💣 Любовная бомба', price: 450, description: 'Взорвать чат любовью!' },
+            { id: 'disco', name: '🪩 Дискотека', price: 700, description: 'Включить дискотеку для всех!' }
         ];
 
-        // Чат-игры
         const CHAT_GAMES = [
             { name: 'Правда или действие', description: 'Выбери: правда или действие?', emoji: '🎭' },
             { name: 'Я никогда не...', description: 'Признайся в том, что никогда не делал!', emoji: '🤫' },
             { name: 'Кто я?', description: 'Угадай персонажа по описанию!', emoji: '🕵️' },
             { name: 'Ассоциации', description: 'Назови первую ассоциацию со словом!', emoji: '💭' },
             { name: 'Продолжи фразу', description: 'Продолжи: "На свадьбе самое главное..."', emoji: '✍️' },
-            { name: 'Угадай песню', description: 'Угадай песню по эмодзи!', emoji: '🎵' }
+            { name: 'Угадай песню', description: 'Угадай песню по эмодзи!', emoji: '🎵' },
+            { name: 'Смешной комплимент', description: 'Сделай смешной комплимент молодоженам!', emoji: '😄' },
+            { name: 'Угадай фильм', description: 'Угадай фильм по эмодзи!', emoji: '🎬' }
         ];
 
         let currentUser = null;
@@ -1156,10 +678,11 @@
         let bingoCard = [];
         let checkedBingo = new Set();
         let messagesRef = null;
+        let effectsRef = null;
         let joinedRooms = new Set(['main']);
         let usedCodes = new Set();
+        let pendingUserName = null;
 
-        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             const savedUser = localStorage.getItem('wedding_user');
             if (savedUser) {
@@ -1172,9 +695,7 @@
 
         function loadJoinedRooms() {
             const savedRooms = localStorage.getItem('joined_rooms');
-            if (savedRooms) {
-                joinedRooms = new Set(JSON.parse(savedRooms));
-            }
+            if (savedRooms) joinedRooms = new Set(JSON.parse(savedRooms));
         }
 
         function saveJoinedRooms() {
@@ -1183,102 +704,175 @@
 
         function loadUsedCodes() {
             const savedCodes = localStorage.getItem('used_codes');
-            if (savedCodes) {
-                usedCodes = new Set(JSON.parse(savedCodes));
-            }
+            if (savedCodes) usedCodes = new Set(JSON.parse(savedCodes));
         }
 
         function saveUsedCodes() {
             localStorage.setItem('used_codes', JSON.stringify([...usedCodes]));
         }
 
-        function isCodeUsed(code) {
-            return usedCodes.has(code);
-        }
+        function isCodeUsed(code) { return usedCodes.has(code); }
+        function markCodeAsUsed(code) { usedCodes.add(code); saveUsedCodes(); }
 
-        function markCodeAsUsed(code) {
-            usedCodes.add(code);
-            saveUsedCodes();
-        }
-
-        // Вход
+        // Login
         function login() {
             const nameInput = document.getElementById('userName');
             const codeInput = document.getElementById('secretCode');
             const errorDiv = document.getElementById('loginError');
+            const successDiv = document.getElementById('loginSuccess');
             
             const name = nameInput.value.trim();
             const code = codeInput.value.toUpperCase().trim();
             
             errorDiv.textContent = '';
+            successDiv.textContent = '';
             
-            if (!name) {
-                errorDiv.textContent = 'Введи имя!';
-                nameInput.focus();
-                return;
-            }
+            if (!name) { errorDiv.textContent = 'Введи имя!'; nameInput.focus(); return; }
             
+            database.ref('users').orderByChild('name').equalTo(name).once('value', (snapshot) => {
+                let userExists = false;
+                let existingUser = null;
+                
+                snapshot.forEach((childSnapshot) => {
+                    userExists = true;
+                    existingUser = { id: childSnapshot.key, ...childSnapshot.val() };
+                });
+                
+                if (userExists && existingUser) {
+                    if (existingUser.password) {
+                        pendingUserName = name;
+                        document.getElementById('passwordUserName').textContent = name;
+                        document.getElementById('passwordModal').style.display = 'flex';
+                        document.getElementById('passwordError').textContent = '';
+                    } else {
+                        proceedLogin(name, code, existingUser);
+                    }
+                } else {
+                    if (!code) {
+                        pendingUserName = name;
+                        document.getElementById('createPasswordModal').style.display = 'flex';
+                        document.getElementById('createPasswordError').textContent = '';
+                        document.getElementById('newUserPassword').value = '';
+                        document.getElementById('confirmUserPassword').value = '';
+                    } else {
+                        proceedLogin(name, code, null);
+                    }
+                }
+            });
+        }
+
+        function proceedLogin(name, code, existingUser) {
             let role = 'guest';
             let emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
             let bonusCoins = 0;
             
-            if (code && ADMIN_CODES[code]) {
-                if (isCodeUsed(code)) {
-                    errorDiv.textContent = 'Этот код уже использован! 😏';
-                    return;
-                }
-                
+            if (existingUser) {
+                role = existingUser.role || 'guest';
+                emoji = existingUser.emoji || EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+            } else if (code && ADMIN_CODES[code]) {
+                if (isCodeUsed(code)) { document.getElementById('loginError').textContent = 'Код уже использован!'; return; }
                 const adminData = ADMIN_CODES[code];
                 if (adminData.name.toLowerCase() === name.toLowerCase()) {
-                    role = adminData.role;
-                    emoji = adminData.emoji;
-                    bonusCoins = adminData.coins || 10000;
-                    markCodeAsUsed(code);
-                } else {
-                    errorDiv.textContent = 'Неверное имя для этого кода! 😏';
-                    return;
-                }
+                    role = adminData.role; emoji = adminData.emoji;
+                    bonusCoins = adminData.coins || 10000; markCodeAsUsed(code);
+                } else { document.getElementById('loginError').textContent = 'Неверное имя!'; return; }
             }
             
-            if (code && MONEY_CODES[code]) {
-                if (isCodeUsed(code)) {
-                    errorDiv.textContent = 'Этот код уже использован! 😏';
-                    return;
-                }
-                
-                bonusCoins += MONEY_CODES[code].amount;
-                markCodeAsUsed(code);
+            if (code && MONEY_CODES[code] && !existingUser) {
+                if (isCodeUsed(code)) { document.getElementById('loginError').textContent = 'Код уже использован!'; return; }
+                bonusCoins += MONEY_CODES[code].amount; markCodeAsUsed(code);
             }
+            
+            const userId = existingUser ? existingUser.id : 'user_' + Date.now();
             
             currentUser = {
-                id: 'user_' + Date.now(),
-                name: name,
-                emoji: emoji,
-                role: role,
-                coins: 1000 + bonusCoins,
-                about: '',
-                messagesCount: 0,
-                spentCoins: 0,
-                earnedCoins: 0,
-                createdAt: Date.now()
+                id: userId, name: name, emoji: emoji, role: role,
+                coins: existingUser ? existingUser.coins : 1000 + bonusCoins,
+                about: existingUser ? existingUser.about || '' : '',
+                messagesCount: existingUser ? existingUser.messagesCount || 0 : 0,
+                spentCoins: existingUser ? existingUser.spentCoins || 0 : 0,
+                earnedCoins: existingUser ? existingUser.earnedCoins || 0 : 0,
+                password: existingUser ? existingUser.password : null,
+                createdAt: existingUser ? existingUser.createdAt : Date.now()
             };
             
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
             
-            database.ref('users/' + currentUser.id).set({
-                name: currentUser.name,
-                emoji: currentUser.emoji,
-                role: currentUser.role,
-                coins: currentUser.coins,
-                about: '',
-                messagesCount: 0,
-                spentCoins: 0,
-                earnedCoins: 0,
-                createdAt: currentUser.createdAt
+            if (!existingUser) {
+                database.ref('users/' + currentUser.id).set({
+                    name: currentUser.name, emoji: currentUser.emoji, role: currentUser.role,
+                    coins: currentUser.coins, about: '', messagesCount: 0,
+                    spentCoins: 0, earnedCoins: 0, password: null, createdAt: currentUser.createdAt
+                });
+                addTransaction(currentUser.id, currentUser.name, '+', currentUser.coins, 'Начальный баланс');
+            }
+            
+            showMainScreen();
+        }
+
+        function verifyPassword() {
+            const password = document.getElementById('userPassword').value.trim();
+            const errorDiv = document.getElementById('passwordError');
+            errorDiv.textContent = '';
+            if (!password) { errorDiv.textContent = 'Введите пароль!'; return; }
+            
+            database.ref('users').orderByChild('name').equalTo(pendingUserName).once('value', (snapshot) => {
+                let found = false;
+                snapshot.forEach((childSnapshot) => {
+                    const userData = childSnapshot.val();
+                    if (userData.password === password) {
+                        found = true;
+                        currentUser = {
+                            id: childSnapshot.key, name: userData.name, emoji: userData.emoji,
+                            role: userData.role, coins: userData.coins, about: userData.about || '',
+                            messagesCount: userData.messagesCount || 0, spentCoins: userData.spentCoins || 0,
+                            earnedCoins: userData.earnedCoins || 0, password: userData.password, createdAt: userData.createdAt
+                        };
+                        localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+                        document.getElementById('passwordModal').style.display = 'none';
+                        document.getElementById('userPassword').value = '';
+                        showMainScreen();
+                    }
+                });
+                if (!found) errorDiv.textContent = 'Неверный пароль!';
             });
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('passwordError').textContent = '';
+            pendingUserName = null;
+        }
+
+        function createPassword() {
+            const password = document.getElementById('newUserPassword').value.trim();
+            const confirm = document.getElementById('confirmUserPassword').value.trim();
+            const errorDiv = document.getElementById('createPasswordError');
+            errorDiv.textContent = '';
             
-            addTransaction(currentUser.id, currentUser.name, '+', currentUser.coins, 'Начальный баланс');
+            if (!password) { errorDiv.textContent = 'Введите пароль!'; return; }
+            if (password.length < 3) { errorDiv.textContent = 'Минимум 3 символа!'; return; }
+            if (password !== confirm) { errorDiv.textContent = 'Пароли не совпадают!'; return; }
             
+            const userId = 'user_' + Date.now();
+            currentUser = {
+                id: userId, name: pendingUserName, emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+                role: 'guest', coins: 1000, about: '', messagesCount: 0,
+                spentCoins: 0, earnedCoins: 0, password: password, createdAt: Date.now()
+            };
+            
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            database.ref('users/' + userId).set({
+                name: currentUser.name, emoji: currentUser.emoji, role: 'guest',
+                coins: 1000, about: '', messagesCount: 0, spentCoins: 0,
+                earnedCoins: 0, password: password, createdAt: Date.now()
+            });
+            addTransaction(userId, currentUser.name, '+', 1000, 'Начальный баланс');
+            
+            document.getElementById('createPasswordModal').style.display = 'none';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('confirmUserPassword').value = '';
             showMainScreen();
         }
 
@@ -1296,500 +890,196 @@
             
             let status = 'Гость 🎉';
             let badgeText = '';
-            
             if (currentUser.role === 'god') {
-                status = 'Верховный администратор 🌟';
-                badgeText = '🌟 Бог режима';
+                status = 'Верховный администратор 🌟'; badgeText = '🌟 Бог режима';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             } else if (currentUser.role === 'superadmin') {
-                status = 'Суперадмин 👑';
-                badgeText = '👑 Суперадмин';
+                status = 'Суперадмин 👑'; badgeText = '👑 Суперадмин';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             } else if (currentUser.role === 'moderator') {
-                status = 'Свидетель 🎩';
-                badgeText = '🎩 Свидетель';
+                status = 'Свидетель 🎩'; badgeText = '🎩 Свидетель';
                 document.getElementById('adminBadge').style.display = 'inline';
                 document.getElementById('adminPanel').style.display = 'block';
             }
-            
             document.getElementById('adminBadge').textContent = badgeText;
             document.getElementById('profileStatus').textContent = status;
             
             loadMessages();
+            loadEffects();
             generateBingoCard();
             loadRooms();
             loadShop();
-            loadSecretRoomsList();
+            loadLeaderboard();
         }
 
         function switchTab(tabName) {
             const tabs = ['chat', 'games', 'leaders', 'shop', 'rooms', 'profile'];
             tabs.forEach(tab => {
-                document.getElementById(tab + 'Tab').style.display = tab === tabName ? 'block' : 'none';
+                const el = document.getElementById(tab + 'Tab');
+                if (el) el.style.display = tab === tabName ? 'block' : 'none';
             });
-            
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             const buttons = document.querySelectorAll('.tab');
-            const tabIndex = tabs.indexOf(tabName);
-            if (buttons[tabIndex]) {
-                buttons[tabIndex].classList.add('active');
-            }
-            
-            if (tabName === 'leaders') {
-                loadLeaderboard();
-            }
+            const index = tabs.indexOf(tabName);
+            if (buttons[index]) buttons[index].classList.add('active');
+            if (tabName === 'leaders') loadLeaderboard();
         }
 
-        // Отправка сообщений
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
-            
             if (!text || !currentUser) return;
             
             database.ref('messages').push({
-                userId: currentUser.id,
-                userName: currentUser.name,
-                text: text,
-                emoji: currentUser.emoji,
-                timestamp: Date.now(),
-                room: currentRoom
+                userId: currentUser.id, userName: currentUser.name, text: text,
+                emoji: currentUser.emoji, timestamp: Date.now(), room: currentRoom
             }).then(() => {
                 input.value = '';
-                
-                if (currentUser.coins < 1500) {
-                    updateCoins(5, 'Сообщение в чате');
-                }
-                
-                // Обновляем счетчик сообщений
+                if (currentUser.coins < 1500) updateCoins(5, 'Сообщение в чате');
                 currentUser.messagesCount = (currentUser.messagesCount || 0) + 1;
-                database.ref('users/' + currentUser.id).update({
-                    messagesCount: currentUser.messagesCount
-                });
+                database.ref('users/' + currentUser.id).update({ messagesCount: currentUser.messagesCount });
                 localStorage.setItem('wedding_user', JSON.stringify(currentUser));
             });
         }
 
-        function quickMessage(text) {
-            document.getElementById('messageInput').value = text;
-            sendMessage();
-        }
+        function quickMessage(text) { document.getElementById('messageInput').value = text; sendMessage(); }
 
-        // Чат-игра
         function startChatGame() {
             const game = CHAT_GAMES[Math.floor(Math.random() * CHAT_GAMES.length)];
-            
             database.ref('messages').push({
-                userId: 'system',
-                userName: '🎲 Чат-игра',
+                userId: 'system', userName: '🎲 Чат-игра',
                 text: `${game.emoji} ${game.name}: ${game.description}`,
-                emoji: '🎲',
-                timestamp: Date.now(),
-                room: currentRoom,
-                isSystem: true
+                emoji: '🎲', timestamp: Date.now(), room: currentRoom, isSystem: true
             });
         }
 
-        // Загрузка сообщений
         function loadMessages() {
-            if (messagesRef) {
-                messagesRef.off();
-            }
-            
+            if (messagesRef) messagesRef.off();
             const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;">Загрузка сообщений...</div>';
+            messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;">Загрузка...</div>';
             
             messagesRef = database.ref('messages').orderByChild('timestamp').limitToLast(100);
-            
             messagesRef.on('value', (snapshot) => {
                 messagesDiv.innerHTML = '';
-                
                 snapshot.forEach((childSnapshot) => {
                     const msg = childSnapshot.val();
-                    
                     if (msg.room !== currentRoom) return;
                     
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+                    const div = document.createElement('div');
+                    div.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '';
                     
-                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : '';
-                    
-                    const userName = msg.isSystem ? msg.userName : msg.userName;
-                    
-                    messageDiv.innerHTML = `
+                    div.innerHTML = `
                         <div class="message-header">
                             <span>${msg.emoji || '🎉'}</span>
-                            <span class="message-user" onclick="showUserInfo('${msg.userId}')">${userName}</span>
+                            <span class="message-user" onclick="showUserInfo('${msg.userId}')">${msg.userName}</span>
                             <span class="message-time">${time}</span>
                         </div>
                         <div class="message-text">${msg.text}</div>
                     `;
-                    
-                    messagesDiv.appendChild(messageDiv);
+                    messagesDiv.appendChild(div);
                 });
-                
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             });
         }
 
-        // Показать информацию о пользователе
-        function showUserInfo(userId) {
-            const modal = document.getElementById('userInfoModal');
-            const content = document.getElementById('userInfoContent');
-            
-            modal.style.display = 'flex';
-            content.innerHTML = '<div>Загрузка...</div>';
-            
-            const targetUserId = userId || currentUser.id;
-            
-            database.ref('users/' + targetUserId).once('value', (snapshot) => {
-                const userData = snapshot.val();
-                
-                if (userData) {
-                    content.innerHTML = `
-                        <div style="text-align:center;">
-                            <div style="font-size:60px;">${userData.emoji || '🎉'}</div>
-                            <h4>${userData.name}</h4>
-                            <p>💰 Баланс: ${userData.coins || 0} монет</p>
-                            <p>💬 Сообщений: ${userData.messagesCount || 0}</p>
-                            <p>💸 Потрачено: ${userData.spentCoins || 0} монет</p>
-                            <p>📈 Заработано: ${userData.earnedCoins || 0} монет</p>
-                            ${userData.about ? '<p>📝 О себе: ' + userData.about + '</p>' : ''}
-                        </div>
-                    `;
-                } else {
-                    content.innerHTML = '<div>Пользователь не найден</div>';
+        // Load effects from Firebase
+        function loadEffects() {
+            if (effectsRef) effectsRef.off();
+            effectsRef = database.ref('effects').limitToLast(1);
+            effectsRef.on('child_added', (snapshot) => {
+                const effect = snapshot.val();
+                if (effect.timestamp > Date.now() - 5000) {
+                    triggerEffect(effect.type);
                 }
             });
         }
 
-        function closeUserInfo() {
-            document.getElementById('userInfoModal').style.display = 'none';
+        function triggerEffect(type) {
+            switch(type) {
+                case 'confetti': launchConfetti(); break;
+                case 'fireworks': launchFireworks(); break;
+                case 'heart_rain': launchHeartRain(); break;
+                case 'disco': launchDisco(); break;
+                case 'love_bomb': launchLoveBomb(); break;
+            }
         }
 
-        // Таблица лидеров
-        function loadLeaderboard() {
-            const leaderboardDiv = document.getElementById('leaderboard');
-            leaderboardDiv.innerHTML = '<div>Загрузка...</div>';
-            
-            database.ref('users').once('value', (snapshot) => {
-                const users = [];
-                
-                snapshot.forEach((childSnapshot) => {
-                    users.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                
-                // Сортируем по разным критериям
-                const byCoins = [...users].sort((a, b) => (b.coins || 0) - (a.coins || 0));
-                const byMessages = [...users].sort((a, b) => (b.messagesCount || 0) - (a.messagesCount || 0));
-                const bySpent = [...users].sort((a, b) => (b.spentCoins || 0) - (a.spentCoins || 0));
-                const byEarned = [...users].sort((a, b) => (b.earnedCoins || 0) - (a.earnedCoins || 0));
-                
-                leaderboardDiv.innerHTML = `
-                    <h3>💰 Больше всех монет</h3>
-                    ${byCoins.slice(0, 5).map((user, index) => `
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
-                            </div>
-                            <div class="leaderboard-value">${user.coins || 0} 🪙</div>
-                        </div>
-                    `).join('')}
+        function launchConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ff69b4'];
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                piece.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 5000);
+            }
+        }
+
+        function launchFireworks() {
+            for (let f = 0; f < 5; f++) {
+                setTimeout(() => {
+                    const centerX = Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
+                    const centerY = Math.random() * window.innerHeight * 0.5 + window.innerHeight * 0.1;
+                    const colors = ['#ff0000', '#ffd700', '#00ff00', '#ff69b4', '#00bfff', '#ffa500'];
                     
-                    <h3 style="margin-top:20px;">💬 Больше всех сообщений</h3>
-                    ${byMessages.slice(0, 5).map((user, index) => `
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
-                            </div>
-                            <div class="leaderboard-value">${user.messagesCount || 0} 💬</div>
-                        </div>
-                    `).join('')}
-                    
-                    <h3 style="margin-top:20px;">💸 Больше всех потратил</h3>
-                    ${bySpent.slice(0, 5).map((user, index) => `
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-name">${user.emoji} ${user.name}</div>
-                            </div>
-                            <div class="leaderboard-value">${user.spentCoins || 0} 💸</div>
-                        </div>
-                    `).join('')}
-                `;
-            });
-        }
-
-        // Очистка чата
-        function clearChat() {
-            if (currentUser.role !== 'god') {
-                alert('Только Верховный администратор может очистить чат!');
-                return;
-            }
-            
-            const confirm1 = confirm('Вы уверены, что хотите очистить чат?');
-            if (!confirm1) return;
-            
-            const confirm2 = confirm('Точно? Все сообщения будут удалены!');
-            if (!confirm2) return;
-            
-            const confirm3 = confirm('Последний шанс! Очистить чат?');
-            if (!confirm3) return;
-            
-            database.ref('messages').remove().then(() => {
-                alert('Чат очищен! 🗑️');
-                loadMessages();
-            });
-        }
-
-        // Обновление монет
-        function updateCoins(amount, description) {
-            currentUser.coins += amount;
-            
-            if (amount < 0) {
-                currentUser.spentCoins = (currentUser.spentCoins || 0) + Math.abs(amount);
-            } else {
-                currentUser.earnedCoins = (currentUser.earnedCoins || 0) + amount;
-            }
-            
-            document.getElementById('balance').textContent = currentUser.coins;
-            document.getElementById('profileBalance').textContent = currentUser.coins;
-            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
-            
-            if (currentUser.id) {
-                database.ref('users/' + currentUser.id).update({
-                    coins: currentUser.coins,
-                    spentCoins: currentUser.spentCoins,
-                    earnedCoins: currentUser.earnedCoins
-                });
-            }
-            
-            addTransaction(currentUser.id, currentUser.name, amount > 0 ? '+' : '', amount, description);
-        }
-
-        function addTransaction(userId, userName, sign, amount, description) {
-            database.ref('transactions').push({
-                userId: userId,
-                userName: userName,
-                amount: amount,
-                description: description,
-                timestamp: Date.now()
-            });
-        }
-
-        function showTransactions() {
-            const modal = document.getElementById('transactionsModal');
-            const list = document.getElementById('transactionsList');
-            
-            modal.style.display = 'flex';
-            list.innerHTML = '<div>Загрузка...</div>';
-            
-            database.ref('transactions')
-                .orderByChild('userId')
-                .equalTo(currentUser.id)
-                .limitToLast(50)
-                .on('value', (snapshot) => {
-                    list.innerHTML = '';
-                    
-                    const transactions = [];
-                    snapshot.forEach((childSnapshot) => {
-                        transactions.push(childSnapshot.val());
-                    });
-                    
-                    transactions.reverse().forEach(trans => {
-                        const div = document.createElement('div');
-                        div.className = 'transaction-item';
-                        
-                        const sign = trans.amount > 0 ? '+' : '';
-                        const className = trans.amount > 0 ? 'transaction-positive' : 'transaction-negative';
-                        
-                        const time = new Date(trans.timestamp).toLocaleTimeString('ru-RU', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-                        
-                        div.innerHTML = `
-                            <div>
-                                <div>${trans.description}</div>
-                                <small>${time}</small>
-                            </div>
-                            <span class="${className}">${sign}${trans.amount} 🪙</span>
-                        `;
-                        
-                        list.appendChild(div);
-                    });
-                });
-        }
-
-        function closeTransactions() {
-            document.getElementById('transactionsModal').style.display = 'none';
-        }
-
-        function saveAboutMe() {
-            const aboutText = document.getElementById('aboutMe').value.trim();
-            
-            currentUser.about = aboutText;
-            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
-            
-            if (currentUser.id) {
-                database.ref('users/' + currentUser.id).update({
-                    about: aboutText
-                });
-            }
-            
-            alert('Информация сохранена! ✅');
-        }
-
-        function activateCode() {
-            const codeInput = document.getElementById('profileCodeInput');
-            const code = codeInput.value.toUpperCase().trim();
-            const resultDiv = document.getElementById('codeResult');
-            
-            resultDiv.innerHTML = '';
-            
-            if (!code) {
-                resultDiv.innerHTML = '<p style="color:red;">Введите код!</p>';
-                return;
-            }
-            
-            if (isCodeUsed(code)) {
-                resultDiv.innerHTML = '<p style="color:red;">❌ Этот код уже использован!</p>';
-                return;
-            }
-            
-            if (MONEY_CODES[code]) {
-                const amount = MONEY_CODES[code].amount;
-                updateCoins(amount, 'Активация кода ' + code);
-                markCodeAsUsed(code);
-                resultDiv.innerHTML = '<p style="color:green;">✅ Код активирован! +' + amount + ' 🪙</p>';
-                codeInput.value = '';
-                return;
-            }
-            
-            if (SECRET_ROOMS[code]) {
-                const room = SECRET_ROOMS[code];
-                const roomId = code.toLowerCase();
-                
-                if (!joinedRooms.has(roomId)) {
-                    joinedRooms.add(roomId);
-                    saveJoinedRooms();
-                    markCodeAsUsed(code);
-                    loadRooms();
-                    loadSecretRoomsList();
-                    resultDiv.innerHTML = '<p style="color:green;">✅ Открыта комната: ' + room.name + '</p>';
-                } else {
-                    resultDiv.innerHTML = '<p style="color:orange;">⚠️ Вы уже в этой комнате!</p>';
-                }
-                codeInput.value = '';
-                return;
-            }
-            
-            resultDiv.innerHTML = '<p style="color:red;">❌ Неверный код!</p>';
-        }
-
-        function loadRooms() {
-            const roomsList = document.getElementById('roomsList');
-            const rooms = [
-                { id: 'main', name: '💬 Общий чат' },
-                { id: 'toasts', name: '🥂 Тосты и поздравления' },
-                { id: 'photos', name: '📸 Фото и видео' }
-            ];
-            
-            Object.keys(SECRET_ROOMS).forEach(roomKey => {
-                const roomId = roomKey.toLowerCase();
-                if (joinedRooms.has(roomId)) {
-                    rooms.push({
-                        id: roomId,
-                        name: SECRET_ROOMS[roomKey].icon + ' ' + SECRET_ROOMS[roomKey].name
-                    });
-                }
-            });
-            
-            roomsList.innerHTML = rooms.map(room => `
-                <div class="room-card ${room.id === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${room.id}')">
-                    ${room.name}
-                </div>
-            `).join('');
-        }
-
-        function loadSecretRoomsList() {
-            const secretRoomsDiv = document.getElementById('secretRoomsList');
-            
-            const joinedSecretRooms = Object.keys(SECRET_ROOMS).filter(roomKey => 
-                joinedRooms.has(roomKey.toLowerCase())
-            );
-            
-            if (joinedSecretRooms.length === 0) {
-                secretRoomsDiv.innerHTML = '<p style="color:#666;">У вас нет секретных комнат.</p>';
-                return;
-            }
-            
-            secretRoomsDiv.innerHTML = '<h3>🔓 Доступные секретные комнаты:</h3>' + 
-                joinedSecretRooms.map(roomKey => {
-                    const room = SECRET_ROOMS[roomKey];
-                    return `
-                        <div class="room-card ${roomKey.toLowerCase() === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${roomKey.toLowerCase()}')">
-                            ${room.icon} ${room.name}
-                        </div>
-                    `;
-                }).join('');
-        }
-
-        function switchRoom(roomId) {
-            currentRoom = roomId;
-            loadMessages();
-            loadRooms();
-            switchTab('chat');
-        }
-
-        function joinSecretRoom() {
-            const passwordInput = document.getElementById('roomPassword');
-            const password = passwordInput.value.toUpperCase().trim();
-            
-            if (SECRET_ROOMS[password]) {
-                const room = SECRET_ROOMS[password];
-                const roomId = password.toLowerCase();
-                
-                joinedRooms.add(roomId);
-                saveJoinedRooms();
-                markCodeAsUsed(password);
-                
-                currentRoom = roomId;
-                loadMessages();
-                loadRooms();
-                loadSecretRoomsList();
-                
-                alert('Вы вошли в комнату: ' + room.name);
-                passwordInput.value = '';
-            } else {
-                alert('Неверный пароль! 😜');
+                    for (let i = 0; i < 30; i++) {
+                        const spark = document.createElement('div');
+                        spark.className = 'firework';
+                        spark.style.left = centerX + 'px';
+                        spark.style.top = centerY + 'px';
+                        spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        const angle = (Math.PI * 2 * i) / 30;
+                        const velocity = 50 + Math.random() * 100;
+                        spark.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                        spark.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+                        document.body.appendChild(spark);
+                        setTimeout(() => spark.remove(), 2000);
+                    }
+                }, f * 500);
             }
         }
 
+        function launchHeartRain() {
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-rain';
+                heart.textContent = ['💖', '💕', '❤️', '💗', '💓'][Math.floor(Math.random() * 5)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                heart.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 6000);
+            }
+        }
+
+        function launchDisco() {
+            document.body.style.animation = 'discoLights 3s infinite';
+            setTimeout(() => { document.body.style.animation = ''; }, 10000);
+        }
+
+        function launchLoveBomb() {
+            launchHeartRain();
+            launchConfetti();
+        }
+
+        // Shop
         function loadShop() {
             const shopDiv = document.getElementById('shopItems');
             shopDiv.innerHTML = SHOP_ITEMS.map(item => `
                 <div class="shop-item">
                     <div class="shop-item-info">
                         <div class="shop-item-name">${item.name}</div>
-                        <div>${item.description}</div>
+                        <div style="font-size:14px;color:#666;">${item.description}</div>
                     </div>
-                    <div>
+                    <div style="text-align:center;">
                         <div class="shop-item-price">${item.price} 🪙</div>
-                        <button onclick="buyItem('${item.id}')" class="btn-game">Купить</button>
+                        <button onclick="buyItem('${item.id}')" class="btn-game" style="margin-top:5px;padding:8px 15px;font-size:14px;">Купить</button>
                     </div>
                 </div>
             `).join('');
@@ -1806,16 +1096,18 @@
             
             updateCoins(-item.price, 'Покупка: ' + item.name);
             
+            // Send effect to Firebase so all users see it
+            database.ref('effects').push({
+                type: itemId,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                timestamp: Date.now()
+            });
+            
+            // Trigger locally too
+            triggerEffect(itemId);
+            
             switch(itemId) {
-                case 'confetti':
-                    alert('🎊 Конфетти запущены!');
-                    break;
-                case 'fireworks':
-                    alert('🎆 Фейерверк!');
-                    break;
-                case 'heart_rain':
-                    alert('💖 Дождь из сердечек!');
-                    break;
                 case 'crown':
                     currentUser.emoji = '👑';
                     updateUserData();
@@ -1823,8 +1115,232 @@
                     document.getElementById('profileEmoji').textContent = '👑';
                     alert('👑 Теперь ты король вечера!');
                     break;
+                case 'nickname':
+                    const newName = prompt('Введите новое имя:');
+                    if (newName && newName.trim()) {
+                        currentUser.name = newName.trim();
+                        updateUserData();
+                        document.getElementById('displayName').textContent = currentUser.name;
+                        document.getElementById('profileName').textContent = currentUser.name;
+                        alert('Имя изменено на: ' + currentUser.name);
+                    }
+                    break;
+                case 'megaphone':
+                    const msg = prompt('Введите сообщение для всех комнат:');
+                    if (msg && msg.trim()) {
+                        ['main', 'toasts', 'photos'].forEach(room => {
+                            database.ref('messages').push({
+                                userId: currentUser.id, userName: currentUser.name,
+                                text: '📢 ' + msg, emoji: '📢',
+                                timestamp: Date.now(), room: room, isSystem: true
+                            });
+                        });
+                        alert('Сообщение отправлено во все комнаты!');
+                    }
+                    break;
+                case 'invisible':
+                    alert('🫥 Вы невидимы на 30 минут!');
+                    break;
                 default:
-                    alert('Покупка успешна! ' + item.name);
+                    alert('Эффект запущен! ' + item.name);
+            }
+        }
+
+        function updateCoins(amount, description) {
+            currentUser.coins += amount;
+            if (amount < 0) currentUser.spentCoins = (currentUser.spentCoins || 0) + Math.abs(amount);
+            else currentUser.earnedCoins = (currentUser.earnedCoins || 0) + amount;
+            
+            document.getElementById('balance').textContent = currentUser.coins;
+            document.getElementById('profileBalance').textContent = currentUser.coins;
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            
+            if (currentUser.id) {
+                database.ref('users/' + currentUser.id).update({
+                    coins: currentUser.coins, spentCoins: currentUser.spentCoins, earnedCoins: currentUser.earnedCoins
+                });
+            }
+            addTransaction(currentUser.id, currentUser.name, amount > 0 ? '+' : '', amount, description);
+        }
+
+        function addTransaction(userId, userName, sign, amount, description) {
+            database.ref('transactions').push({
+                userId, userName, amount, description, timestamp: Date.now()
+            });
+        }
+
+        function showTransactions() {
+            const modal = document.getElementById('transactionsModal');
+            const list = document.getElementById('transactionsList');
+            modal.style.display = 'flex';
+            list.innerHTML = '<div>Загрузка...</div>';
+            
+            database.ref('transactions').orderByChild('userId').equalTo(currentUser.id).limitToLast(50)
+                .on('value', (snapshot) => {
+                    list.innerHTML = '';
+                    const transactions = [];
+                    snapshot.forEach((child) => transactions.push(child.val()));
+                    transactions.reverse().forEach(trans => {
+                        const div = document.createElement('div');
+                        div.className = 'transaction-item';
+                        const sign = trans.amount > 0 ? '+' : '';
+                        const cls = trans.amount > 0 ? 'transaction-positive' : 'transaction-negative';
+                        const time = new Date(trans.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                        div.innerHTML = `<div><div>${trans.description}</div><small>${time}</small></div><span class="${cls}">${sign}${trans.amount} 🪙</span>`;
+                        list.appendChild(div);
+                    });
+                });
+        }
+
+        function closeTransactions() { document.getElementById('transactionsModal').style.display = 'none'; }
+
+        function showUserInfo(userId) {
+            const modal = document.getElementById('userInfoModal');
+            const content = document.getElementById('userInfoContent');
+            modal.style.display = 'flex';
+            content.innerHTML = '<div>Загрузка...</div>';
+            
+            const targetId = userId || currentUser.id;
+            database.ref('users/' + targetId).once('value', (snapshot) => {
+                const user = snapshot.val();
+                if (user) {
+                    content.innerHTML = `
+                        <div style="text-align:center;">
+                            <div style="font-size:60px;">${user.emoji || '🎉'}</div>
+                            <h4>${user.name}</h4>
+                            <p>💰 Баланс: ${user.coins || 0}</p>
+                            <p>💬 Сообщений: ${user.messagesCount || 0}</p>
+                            <p>💸 Потрачено: ${user.spentCoins || 0}</p>
+                            <p>📈 Заработано: ${user.earnedCoins || 0}</p>
+                            ${user.about ? '<p>📝 ' + user.about + '</p>' : ''}
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = '<div>Пользователь не найден</div>';
+                }
+            });
+        }
+
+        function closeUserInfo() { document.getElementById('userInfoModal').style.display = 'none'; }
+
+        function loadLeaderboard() {
+            const lb = document.getElementById('leaderboard');
+            if (!lb) return;
+            lb.innerHTML = '<div>Загрузка...</div>';
+            
+            database.ref('users').once('value', (snapshot) => {
+                const users = [];
+                snapshot.forEach((child) => users.push({ id: child.key, ...child.val() }));
+                
+                const byCoins = [...users].sort((a, b) => (b.coins || 0) - (a.coins || 0));
+                const byMsg = [...users].sort((a, b) => (b.messagesCount || 0) - (a.messagesCount || 0));
+                const bySpent = [...users].sort((a, b) => (b.spentCoins || 0) - (a.spentCoins || 0));
+                
+                lb.innerHTML = `
+                    <h3 style="margin:15px 0;">💰 Больше всех монет</h3>
+                    ${byCoins.slice(0, 10).map((u, i) => leaderboardItem(u, i, 'coins', '🪙')).join('')}
+                    <h3 style="margin:20px 0 15px;">💬 Больше всех сообщений</h3>
+                    ${byMsg.slice(0, 10).map((u, i) => leaderboardItem(u, i, 'messagesCount', '💬')).join('')}
+                    <h3 style="margin:20px 0 15px;">💸 Больше всех потратил</h3>
+                    ${bySpent.slice(0, 10).map((u, i) => leaderboardItem(u, i, 'spentCoins', '💸')).join('')}
+                `;
+            });
+        }
+
+        function leaderboardItem(user, index, field, icon) {
+            const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+            return `
+                <div class="leaderboard-item" onclick="showUserInfo('${user.id}')">
+                    <div class="leaderboard-rank ${rankClass}">${index + 1}</div>
+                    <div class="leaderboard-info"><div class="leaderboard-name">${user.emoji || '🎉'} ${user.name}</div></div>
+                    <div class="leaderboard-value">${user[field] || 0} ${icon}</div>
+                </div>
+            `;
+        }
+
+        function clearChat() {
+            if (currentUser.role !== 'god') { alert('Только Верховный администратор!'); return; }
+            if (!confirm('Вы уверены?')) return;
+            if (!confirm('Точно? Все сообщения будут удалены!')) return;
+            if (!confirm('Последний шанс! Очистить чат?')) return;
+            
+            database.ref('messages').remove().then(() => { alert('Чат очищен! 🗑️'); loadMessages(); });
+        }
+
+        function saveAboutMe() {
+            const text = document.getElementById('aboutMe').value.trim();
+            currentUser.about = text;
+            localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+            if (currentUser.id) database.ref('users/' + currentUser.id).update({ about: text });
+            alert('Сохранено! ✅');
+        }
+
+        function activateCode() {
+            const input = document.getElementById('profileCodeInput');
+            const code = input.value.toUpperCase().trim();
+            const result = document.getElementById('codeResult');
+            result.innerHTML = '';
+            
+            if (!code) { result.innerHTML = '<p style="color:red;">Введите код!</p>'; return; }
+            if (isCodeUsed(code)) { result.innerHTML = '<p style="color:red;">❌ Код уже использован!</p>'; return; }
+            
+            if (MONEY_CODES[code]) {
+                const amount = MONEY_CODES[code].amount;
+                updateCoins(amount, 'Активация кода ' + code);
+                markCodeAsUsed(code);
+                result.innerHTML = '<p style="color:green;">✅ +' + amount + ' 🪙</p>';
+                input.value = '';
+                return;
+            }
+            
+            if (SECRET_ROOMS[code]) {
+                const roomId = code.toLowerCase();
+                if (!joinedRooms.has(roomId)) {
+                    joinedRooms.add(roomId); saveJoinedRooms(); markCodeAsUsed(code);
+                    loadRooms();
+                    result.innerHTML = '<p style="color:green;">✅ Комната открыта!</p>';
+                } else {
+                    result.innerHTML = '<p style="color:orange;">⚠️ Уже в комнате!</p>';
+                }
+                input.value = '';
+                return;
+            }
+            
+            result.innerHTML = '<p style="color:red;">❌ Неверный код!</p>';
+        }
+
+        function loadRooms() {
+            const roomsList = document.getElementById('roomsList');
+            const rooms = [
+                { id: 'main', name: '💬 Общий чат' },
+                { id: 'toasts', name: '🥂 Тосты' },
+                { id: 'photos', name: '📸 Фото' }
+            ];
+            
+            Object.keys(SECRET_ROOMS).forEach(key => {
+                const id = key.toLowerCase();
+                if (joinedRooms.has(id)) rooms.push({ id, name: SECRET_ROOMS[key].icon + ' ' + SECRET_ROOMS[key].name });
+            });
+            
+            roomsList.innerHTML = rooms.map(r => `
+                <div class="room-card ${r.id === currentRoom ? 'active-room' : ''}" onclick="switchRoom('${r.id}')">${r.name}</div>
+            `).join('');
+        }
+
+        function switchRoom(roomId) { currentRoom = roomId; loadMessages(); loadRooms(); switchTab('chat'); }
+
+        function joinSecretRoom() {
+            const input = document.getElementById('roomPassword');
+            const password = input.value.toUpperCase().trim();
+            
+            if (SECRET_ROOMS[password]) {
+                const roomId = password.toLowerCase();
+                joinedRooms.add(roomId); saveJoinedRooms(); markCodeAsUsed(password);
+                currentRoom = roomId; loadMessages(); loadRooms();
+                alert('Вы вошли в комнату: ' + SECRET_ROOMS[password].name);
+                input.value = '';
+            } else {
+                alert('Неверный пароль! 😜');
             }
         }
 
@@ -1832,44 +1348,29 @@
             const shuffled = [...BINGO_ITEMS].sort(() => Math.random() - 0.5);
             bingoCard = shuffled.slice(0, 9);
             checkedBingo.clear();
-            
-            const bingoGrid = document.getElementById('bingoGrid');
-            bingoGrid.innerHTML = '';
-            
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
             bingoCard.forEach(item => {
                 const cell = document.createElement('div');
                 cell.className = 'bingo-cell';
                 cell.textContent = item;
-                cell.onclick = function() {
-                    toggleBingoItem(item, cell);
-                };
-                bingoGrid.appendChild(cell);
+                cell.onclick = function() { toggleBingoItem(item, cell); };
+                grid.appendChild(cell);
             });
         }
 
         function toggleBingoItem(item, cell) {
-            if (checkedBingo.has(item)) {
-                checkedBingo.delete(item);
-                cell.classList.remove('checked');
-            } else {
-                checkedBingo.add(item);
-                cell.classList.add('checked');
-            }
-            
+            if (checkedBingo.has(item)) { checkedBingo.delete(item); cell.classList.remove('checked'); }
+            else { checkedBingo.add(item); cell.classList.add('checked'); }
             checkBingo();
         }
 
         function checkBingo() {
-            const lines = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8],
-                [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                [0, 4, 8], [2, 4, 6]
-            ];
-            
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for (const line of lines) {
-                if (line.every(index => checkedBingo.has(bingoCard[index]))) {
+                if (line.every(i => checkedBingo.has(bingoCard[i]))) {
                     updateCoins(1000, 'Бинго!');
-                    alert('🎉 БИНГО! Ты выиграл 1000 монет!');
+                    alert('🎉 БИНГО! +1000 монет!');
                     generateBingoCard();
                     break;
                 }
@@ -1877,214 +1378,135 @@
         }
 
         function generateToast() {
-            if (currentUser.coins < 50) {
-                alert('Недостаточно монет! Нужно 50 🪙');
-                return;
-            }
-            
-            updateCoins(-50, 'Генерация тоста');
-            
+            if (currentUser.coins < 50) { alert('Нужно 50 🪙'); return; }
+            updateCoins(-50, 'Тост');
             const toast = TOASTS[Math.floor(Math.random() * TOASTS.length)];
             document.getElementById('messageInput').value = toast;
             sendMessage();
         }
 
         function startBattle() {
-            if (currentUser.coins < 300) {
-                alert('Недостаточно монет! Нужно 300 🪙');
-                return;
-            }
-            
+            if (currentUser.coins < 300) { alert('Нужно 300 🪙'); return; }
             updateCoins(-300, 'Битва полов');
-            
             const questions = [
-                { q: 'Кто первый признался в любви?', options: ['Рустам', 'Лиза', 'Оба сразу'] },
-                { q: 'Кто лучше готовит?', options: ['Рустам', 'Лиза', 'Доставка еды'] },
-                { q: 'Кто дольше собирается?', options: ['Рустам', 'Лиза', 'Оба по 2 часа'] }
+                { q: 'Кто первый признался в любви?', options: ['Рустам', 'Лиза', 'Оба'] },
+                { q: 'Кто лучше готовит?', options: ['Рустам', 'Лиза', 'Доставка'] },
+                { q: 'Кто дольше собирается?', options: ['Рустам', 'Лиза', 'Оба'] }
             ];
-            
-            const question = questions[Math.floor(Math.random() * questions.length)];
-            const battleArea = document.getElementById('battleArea');
-            
-            battleArea.innerHTML = `
-                <h4 style="margin: 15px 0;">${question.q}</h4>
-                ${question.options.map((opt, i) => `
-                    <button onclick="voteBattle(${i})" class="btn-game" style="margin: 5px; width: 100%;">
-                        ${opt}
-                    </button>
-                `).join('')}
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('battleArea').innerHTML = `
+                <h4 style="margin:15px 0;">${q.q}</h4>
+                ${q.options.map((opt, i) => `<button onclick="voteBattle(${i})" class="btn-game" style="margin:5px;width:100%;">${opt}</button>`).join('')}
             `;
         }
 
-        function voteBattle(optionIndex) {
-            document.getElementById('battleArea').innerHTML = '<p style="margin: 15px 0;">Голос учтен! ✅</p>';
-            updateCoins(50, 'Участие в битве');
+        function voteBattle() {
+            document.getElementById('battleArea').innerHTML = '<p style="margin:15px 0;">Голос учтен! ✅</p>';
+            updateCoins(50, 'Битва полов');
         }
 
         function randomChallenge() {
-            if (currentUser.coins < 100) {
-                alert('Недостаточно монет! Нужно 100 🪙');
-                return;
-            }
-            
-            updateCoins(-100, 'Случайный конкурс');
-            
+            if (currentUser.coins < 100) { alert('Нужно 100 🪙'); return; }
+            updateCoins(-100, 'Конкурс');
             const challenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
             document.getElementById('challengeResult').innerHTML = `
-                <h4 style="margin: 15px 0;">Твое задание:</h4>
-                <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
+                <h4 style="margin:15px 0;">Твое задание:</h4>
+                <p style="font-size:18px;margin:20px 0;">${challenge}</p>
                 <button onclick="completeChallenge()" class="btn-game">Готово! +200🪙</button>
             `;
         }
 
         function completeChallenge() {
-            updateCoins(200, 'Выполнение задания');
-            document.getElementById('challengeResult').innerHTML = '<p style="margin: 15px 0;">Красавчик! 🎉</p>';
+            updateCoins(200, 'Задание выполнено');
+            document.getElementById('challengeResult').innerHTML = '<p style="margin:15px 0;">Красавчик! 🎉</p>';
         }
 
         function spinWheel() {
-            if (currentUser.coins < 200) {
-                alert('Недостаточно монет! Нужно 200 🪙');
-                return;
-            }
-            
+            if (currentUser.coins < 200) { alert('Нужно 200 🪙'); return; }
             updateCoins(-200, 'Колесо фортуны');
-            
             const prizes = [50, 100, 200, 500, 1000, -50];
             const prize = prizes[Math.floor(Math.random() * prizes.length)];
-            
             setTimeout(() => {
-                updateCoins(prize, 'Выигрыш в колесе фортуны');
-                document.getElementById('wheelResult').innerHTML = `
-                    <p style="font-size: 24px; margin: 20px 0;">${prize > 0 ? '🎉 Выигрыш: ' + prize + ' 🪙' : '😅 Не повезло: ' + prize + ' 🪙'}</p>
-                `;
+                updateCoins(prize, 'Колесо фортуны');
+                document.getElementById('wheelResult').innerHTML = `<p style="font-size:24px;margin:20px 0;">${prize > 0 ? '🎉 ' + prize + ' 🪙' : '😅 ' + prize + ' 🪙'}</p>`;
             }, 1000);
         }
 
         function startQuiz() {
-            if (currentUser.coins < 150) {
-                alert('Недостаточно монет! Нужно 150 🪙');
-                return;
-            }
-            
+            if (currentUser.coins < 150) { alert('Нужно 150 🪙'); return; }
             updateCoins(-150, 'Викторина');
-            
             const questions = [
-                { q: 'Где познакомились Рустам и Лиза?', options: ['В кафе', 'На работе', 'Через друзей', 'В интернете'] },
-                { q: 'Какое любимое блюдо Рустама?', options: ['Пельмени', 'Пицца', 'Суши', 'Борщ'] },
-                { q: 'Какой любимый цвет Лизы?', options: ['Розовый', 'Фиолетовый', 'Красный', 'Синий'] }
+                { q: 'Где познакомились Рустам и Лиза?', options: ['Кафе', 'Работа', 'Друзья', 'Интернет'] },
+                { q: 'Любимое блюдо Рустама?', options: ['Пельмени', 'Пицца', 'Суши', 'Борщ'] },
+                { q: 'Любимый цвет Лизы?', options: ['Розовый', 'Фиолетовый', 'Красный', 'Синий'] }
             ];
-            
-            const question = questions[Math.floor(Math.random() * questions.length)];
-            const quizArea = document.getElementById('quizArea');
-            
-            quizArea.innerHTML = `
-                <h4 style="margin: 15px 0;">${question.q}</h4>
-                ${question.options.map((opt, i) => `
-                    <button onclick="answerQuiz(${i})" class="btn-game" style="margin: 5px; width: 100%;">
-                        ${opt}
-                    </button>
-                `).join('')}
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('quizArea').innerHTML = `
+                <h4 style="margin:15px 0;">${q.q}</h4>
+                ${q.options.map((opt, i) => `<button onclick="answerQuiz(${i})" class="btn-game" style="margin:5px;width:100%;">${opt}</button>`).join('')}
             `;
         }
 
-        function answerQuiz(optionIndex) {
-            updateCoins(100, 'Правильный ответ в викторине');
-            document.getElementById('quizArea').innerHTML = '<p style="margin: 15px 0;">🎉 Правильно! +100 🪙</p>';
+        function answerQuiz() {
+            updateCoins(100, 'Викторина');
+            document.getElementById('quizArea').innerHTML = '<p style="margin:15px 0;">🎉 Правильно! +100 🪙</p>';
         }
 
-        // Админ функции
         function giveCoinsToUser() {
-            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
-                alert('Недостаточно прав!');
-                return;
-            }
-            
-            const userName = document.getElementById('adminUserName').value.trim();
+            if (!['god', 'superadmin', 'moderator'].includes(currentUser.role)) { alert('Нет прав!'); return; }
+            const name = document.getElementById('adminUserName').value.trim();
             const amount = parseInt(document.getElementById('adminCoinsAmount').value);
+            if (!name || !amount) { alert('Введите имя и сумму'); return; }
             
-            if (!userName || !amount) {
-                alert('Введите имя пользователя и сумму');
-                return;
-            }
-            
-            database.ref('users').orderByChild('name').equalTo(userName).once('value', (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const userData = childSnapshot.val();
-                    const newCoins = (userData.coins || 0) + amount;
-                    
-                    database.ref('users/' + childSnapshot.key).update({
-                        coins: newCoins,
-                        earnedCoins: (userData.earnedCoins || 0) + amount
+            database.ref('users').orderByChild('name').equalTo(name).once('value', (snapshot) => {
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    database.ref('users/' + child.key).update({
+                        coins: (user.coins || 0) + amount,
+                        earnedCoins: (user.earnedCoins || 0) + amount
                     });
-                    
-                    addTransaction(childSnapshot.key, userName, '+', amount, 'Начисление администратором');
+                    addTransaction(child.key, name, '+', amount, 'Начисление админом');
                 });
-                
-                alert('Монеты начислены пользователю ' + userName);
+                alert('Начислено ' + name + ': +' + amount + ' 🪙');
             });
         }
 
         function takeCoinsFromUser() {
-            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin') {
-                alert('Недостаточно прав!');
-                return;
-            }
-            
-            const userName = document.getElementById('adminUserName').value.trim();
+            if (!['god', 'superadmin'].includes(currentUser.role)) { alert('Нет прав!'); return; }
+            const name = document.getElementById('adminUserName').value.trim();
             const amount = parseInt(document.getElementById('adminCoinsAmount').value);
+            if (!name || !amount) { alert('Введите имя и сумму'); return; }
             
-            if (!userName || !amount) {
-                alert('Введите имя пользователя и сумму');
-                return;
-            }
-            
-            database.ref('users').orderByChild('name').equalTo(userName).once('value', (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const userData = childSnapshot.val();
-                    const newCoins = Math.max(0, (userData.coins || 0) - amount);
-                    
-                    database.ref('users/' + childSnapshot.key).update({
-                        coins: newCoins,
-                        spentCoins: (userData.spentCoins || 0) + amount
+            database.ref('users').orderByChild('name').equalTo(name).once('value', (snapshot) => {
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    database.ref('users/' + child.key).update({
+                        coins: Math.max(0, (user.coins || 0) - amount),
+                        spentCoins: (user.spentCoins || 0) + amount
                     });
-                    
-                    addTransaction(childSnapshot.key, userName, '-', amount, 'Списание администратором');
+                    addTransaction(child.key, name, '-', amount, 'Списание админом');
                 });
-                
-                alert('Монеты списаны у пользователя ' + userName);
+                alert('Списано у ' + name + ': -' + amount + ' 🪙');
             });
         }
 
         function giveCoinsToAll() {
-            if (currentUser.role !== 'god' && currentUser.role !== 'superadmin' && currentUser.role !== 'moderator') {
-                alert('Недостаточно прав!');
-                return;
-            }
-            
+            if (!['god', 'superadmin', 'moderator'].includes(currentUser.role)) { alert('Нет прав!'); return; }
             database.ref('users').once('value', (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const userData = childSnapshot.val();
-                    const newCoins = (userData.coins || 0) + 500;
-                    
-                    database.ref('users/' + childSnapshot.key).update({
-                        coins: newCoins
-                    });
-                    
-                    addTransaction(childSnapshot.key, userData.name, '+', 500, 'Бонус от администратора');
+                snapshot.forEach((child) => {
+                    const user = child.val();
+                    database.ref('users/' + child.key).update({ coins: (user.coins || 0) + 500 });
+                    addTransaction(child.key, user.name, '+', 500, 'Бонус всем');
                 });
-                
-                alert('Всем гостям начислено по 500 монет! 🎉');
+                alert('Всем +500 🪙!');
             });
         }
 
         function updateUserData() {
             if (currentUser.id) {
                 database.ref('users/' + currentUser.id).update({
-                    name: currentUser.name,
-                    emoji: currentUser.emoji,
-                    coins: currentUser.coins,
-                    about: currentUser.about || '',
+                    name: currentUser.name, emoji: currentUser.emoji,
+                    coins: currentUser.coins, about: currentUser.about || '',
                     messagesCount: currentUser.messagesCount || 0,
                     spentCoins: currentUser.spentCoins || 0,
                     earnedCoins: currentUser.earnedCoins || 0
@@ -2094,15 +1516,13 @@
         }
 
         function logout() {
-            if (messagesRef) {
-                messagesRef.off();
-            }
+            if (messagesRef) messagesRef.off();
+            if (effectsRef) effectsRef.off();
             localStorage.removeItem('wedding_user');
             location.reload();
         }
-        
-        console.log('Приложение готово!');
-        console.log('Андрей - Верховный администратор (код: ANDREY2024)');
+
+        console.log('Приложение готово! 🎉');
     </script>
 </body>
 </html>
