@@ -10,18 +10,40 @@
     <!-- Экран входа -->
     <div id="loginScreen" class="screen">
         <div class="login-box">
-            <h1>💍 Рустам & Лиза 💍</h1>
-            <p>Присоединяйся к празднику!</p>
+            <div class="wedding-icon">💍</div>
+            <h1 class="title-gradient">Рустам & Лиза</h1>
+            <p class="subtitle">Присоединяйся к празднику!</p>
             
-            <input type="text" id="userName" placeholder="Твое имя" maxlength="20">
-            <input type="password" id="secretCode" placeholder="Секретный код (если есть)">
+            <div class="input-group">
+                <label>Твое имя</label>
+                <input type="text" id="userName" placeholder="Например, Вася" maxlength="20">
+            </div>
             
-            <button onclick="login()" class="btn-primary">Войти 🎉</button>
+            <div class="input-group">
+                <label>Секретный код (если есть)</label>
+                <input type="password" id="secretCode" placeholder="Код от организаторов">
+            </div>
+            
+            <button onclick="login()" class="btn-primary">
+                <span>Войти на праздник</span>
+                <span class="btn-icon">🎉</span>
+            </button>
+            
             <div id="loginError" class="error"></div>
             
-            <div class="info">
-                <p>💰 У каждого гостя 1000 монет</p>
-                <p>🎮 Игры, чат и развлечения</p>
+            <div class="info-cards">
+                <div class="info-card">
+                    <span class="info-icon">💰</span>
+                    <span>1000 монет каждому</span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">🎮</span>
+                    <span>Игры и конкурсы</span>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">💬</span>
+                    <span>Общий чат</span>
+                </div>
             </div>
         </div>
     </div>
@@ -30,21 +52,35 @@
     <div id="mainScreen" class="screen" style="display:none">
         <div class="header">
             <div class="user-info">
-                <span id="userEmoji"></span>
-                <span id="displayName"></span>
-                <span id="adminBadge" class="badge" style="display:none">⭐ Организатор</span>
+                <span id="userEmoji" class="user-emoji"></span>
+                <div>
+                    <div class="user-name" id="displayName"></div>
+                    <span id="adminBadge" class="badge" style="display:none">⭐ Организатор</span>
+                </div>
             </div>
             <div class="balance">
-                💰 <span id="balance">0</span> монет
+                💰 <span id="balance">0</span>
             </div>
         </div>
 
         <!-- Вкладки -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('chat')">💬 Чат</button>
-            <button class="tab" onclick="switchTab('games')">🎮 Игры</button>
-            <button class="tab" onclick="switchTab('rooms')">🚪 Комнаты</button>
-            <button class="tab" onclick="switchTab('profile')">👤 Профиль</button>
+            <button class="tab active" onclick="switchTab('chat')">
+                <span class="tab-icon">💬</span>
+                <span>Чат</span>
+            </button>
+            <button class="tab" onclick="switchTab('games')">
+                <span class="tab-icon">🎮</span>
+                <span>Игры</span>
+            </button>
+            <button class="tab" onclick="switchTab('rooms')">
+                <span class="tab-icon">🚪</span>
+                <span>Комнаты</span>
+            </button>
+            <button class="tab" onclick="switchTab('profile')">
+                <span class="tab-icon">👤</span>
+                <span>Профиль</span>
+            </button>
         </div>
 
         <!-- Чат -->
@@ -53,40 +89,40 @@
                 <div id="messages" class="messages"></div>
                 
                 <div class="quick-actions">
-                    <button onclick="quickMessage('Горько! 🎉')">🎉 Горько!</button>
-                    <button onclick="quickMessage('Поздравляю! 🥂')">🥂 Поздравляю!</button>
-                    <button onclick="quickMessage('Совет да любовь! ❤️')">❤️ Любви!</button>
-                    <button onclick="generateToast()">🎤 Тост (50🪙)</button>
+                    <button onclick="quickMessage('Горько! 🎉')" class="quick-btn">🎉 Горько!</button>
+                    <button onclick="quickMessage('Поздравляю! 🥂')" class="quick-btn">🥂 Поздравляю!</button>
+                    <button onclick="quickMessage('Совет да любовь! ❤️')" class="quick-btn">❤️ Любви!</button>
+                    <button onclick="generateToast()" class="quick-btn">🎤 Тост (50🪙)</button>
                 </div>
                 
                 <div class="message-input">
                     <input type="text" id="messageInput" placeholder="Напиши сообщение..." maxlength="500">
-                    <button onclick="sendMessage()">➤</button>
+                    <button onclick="sendMessage()" class="send-btn">➤</button>
                 </div>
             </div>
         </div>
 
         <!-- Игры -->
         <div id="gamesTab" class="tab-content" style="display:none">
-            <h2>🎮 Игры и развлечения</h2>
+            <h2 class="section-title">🎮 Игры и развлечения</h2>
             <div class="games-grid">
-                <div class="game-card">
+                <div class="game-card gradient-1">
                     <h3>🎯 Свадебное Бинго</h3>
                     <p>Отмечай события на свадьбе!</p>
                     <div id="bingoGrid" class="bingo-grid"></div>
                 </div>
                 
-                <div class="game-card">
+                <div class="game-card gradient-2">
                     <h3>⚔️ Битва полов</h3>
                     <p>Ответь на вопросы о паре!</p>
-                    <button onclick="startBattle()" class="btn-primary">Начать (300🪙)</button>
+                    <button onclick="startBattle()" class="btn-game">Начать (300🪙)</button>
                     <div id="battleArea"></div>
                 </div>
                 
-                <div class="game-card">
+                <div class="game-card gradient-3">
                     <h3>🎲 Случайный конкурс</h3>
                     <p>Кто выполнит задание?</p>
-                    <button onclick="randomChallenge()" class="btn-primary">Выбрать (100🪙)</button>
+                    <button onclick="randomChallenge()" class="btn-game">Выбрать (100🪙)</button>
                     <div id="challengeResult"></div>
                 </div>
             </div>
@@ -94,29 +130,32 @@
 
         <!-- Комнаты -->
         <div id="roomsTab" class="tab-content" style="display:none">
-            <h2>🚪 Комнаты</h2>
+            <h2 class="section-title">🚪 Комнаты</h2>
             <div id="roomsList"></div>
             <div class="secret-room">
-                <input type="password" id="roomPassword" placeholder="Пароль комнаты">
-                <button onclick="joinSecretRoom()">Войти</button>
+                <input type="password" id="roomPassword" placeholder="Пароль секретной комнаты">
+                <button onclick="joinSecretRoom()" class="btn-game">Войти</button>
             </div>
         </div>
 
         <!-- Профиль -->
         <div id="profileTab" class="tab-content" style="display:none">
-            <h2>👤 Профиль</h2>
-            <div class="profile-info">
-                <p>Имя: <span id="profileName"></span></p>
-                <p>Баланс: <span id="profileBalance"></span> монет</p>
-                <p>Статус: <span id="profileStatus"></span></p>
+            <h2 class="section-title">👤 Профиль</h2>
+            <div class="profile-card">
+                <div class="profile-avatar" id="profileEmoji"></div>
+                <h3 id="profileName"></h3>
+                <p class="profile-status" id="profileStatus"></p>
+                <div class="profile-balance">
+                    💰 <span id="profileBalance">0</span> монет
+                </div>
             </div>
             
             <div class="admin-section" id="adminPanel" style="display:none">
                 <h3>⭐ Панель администратора</h3>
-                <button onclick="giveCoinsToAll()" class="btn-primary">Дать всем +500 монет</button>
+                <button onclick="giveCoinsToAll()" class="btn-game">Дать всем +500 монет</button>
             </div>
             
-            <button onclick="logout()" class="btn-secondary">Выйти</button>
+            <button onclick="logout()" class="btn-logout">Выйти</button>
         </div>
     </div>
 
