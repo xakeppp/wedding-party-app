@@ -192,6 +192,7 @@
         .game-card {
             padding: 25px; background: white; border-radius: 20px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         .game-card h3 { font-size: 24px; margin-bottom: 10px; }
         .game-card p { margin-bottom: 20px; opacity: 0.9; }
@@ -205,13 +206,13 @@
 
         .bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .bingo-cell {
-            padding: 20px; background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px;
+            padding: 20px; background: #f8f9fa;
+            border: 2px solid #e0e0e0; border-radius: 15px;
             cursor: pointer; font-size: 12px; text-align: center;
-            transition: all 0.3s; color: white;
+            transition: all 0.3s; color: #333;
         }
-        .bingo-cell:hover { background: rgba(255, 255, 255, 0.3); }
-        .bingo-cell.checked { background: rgba(255, 255, 255, 0.9); color: #333; font-weight: bold; }
+        .bingo-cell:hover { background: #e0e0e0; }
+        .bingo-cell.checked { background: var(--gradient); color: white; font-weight: bold; }
 
         .room-card {
             padding: 20px; background: white; border-radius: 20px;
@@ -326,7 +327,7 @@
         .leaderboard-name { font-weight: bold; font-size: 16px; }
         .leaderboard-value { font-weight: bold; font-size: 18px; }
 
-        /* Эффекты конфетти */
+        /* Эффекты */
         .confetti-piece {
             position: fixed; width: 10px; height: 10px;
             z-index: 9999; pointer-events: none;
@@ -337,7 +338,6 @@
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
-        /* Фейерверк */
         .firework {
             position: fixed; width: 5px; height: 5px;
             border-radius: 50%; z-index: 9999; pointer-events: none;
@@ -348,7 +348,6 @@
             100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
         }
 
-        /* Дождь из сердечек */
         .heart-rain {
             position: fixed; z-index: 9999; pointer-events: none;
             animation: heartFall 3s linear forwards;
@@ -449,24 +448,28 @@
                 
                 <div class="game-card">
                     <h3>⚔️ Битва полов</h3>
+                    <p>Ответь на вопросы о паре!</p>
                     <button onclick="startBattle()" class="btn-game">Начать (300🪙)</button>
                     <div id="battleArea"></div>
                 </div>
                 
                 <div class="game-card">
                     <h3>🎲 Случайный конкурс</h3>
+                    <p>Кто выполнит задание?</p>
                     <button onclick="randomChallenge()" class="btn-game">Выбрать (100🪙)</button>
                     <div id="challengeResult"></div>
                 </div>
                 
                 <div class="game-card">
                     <h3>🎰 Колесо фортуны</h3>
+                    <p>Испытай удачу!</p>
                     <button onclick="spinWheel()" class="btn-game">Крутить (200🪙)</button>
                     <div id="wheelResult"></div>
                 </div>
                 
                 <div class="game-card">
                     <h3>💑 Угадай пару</h3>
+                    <p>Насколько хорошо ты знаешь молодоженов?</p>
                     <button onclick="startQuiz()" class="btn-game">Начать (150🪙)</button>
                     <div id="quizArea"></div>
                 </div>
@@ -597,6 +600,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // КОДЫ ОБНОВЛЕНЫ
         const ADMIN_CODES = {
             'DRON7': { name: 'Андрей', role: 'god', emoji: '🌟', coins: 1000000 },
             'RUSTIK2': { name: 'Рустам', role: 'superadmin', emoji: '👑' },
@@ -714,7 +718,6 @@
         function isCodeUsed(code) { return usedCodes.has(code); }
         function markCodeAsUsed(code) { usedCodes.add(code); saveUsedCodes(); }
 
-        // Login
         function login() {
             const nameInput = document.getElementById('userName');
             const codeInput = document.getElementById('secretCode');
@@ -985,7 +988,6 @@
             });
         }
 
-        // Load effects from Firebase
         function loadEffects() {
             if (effectsRef) effectsRef.off();
             effectsRef = database.ref('effects').limitToLast(1);
@@ -1068,7 +1070,6 @@
             launchConfetti();
         }
 
-        // Shop
         function loadShop() {
             const shopDiv = document.getElementById('shopItems');
             shopDiv.innerHTML = SHOP_ITEMS.map(item => `
@@ -1096,7 +1097,6 @@
             
             updateCoins(-item.price, 'Покупка: ' + item.name);
             
-            // Send effect to Firebase so all users see it
             database.ref('effects').push({
                 type: itemId,
                 userId: currentUser.id,
@@ -1104,7 +1104,6 @@
                 timestamp: Date.now()
             });
             
-            // Trigger locally too
             triggerEffect(itemId);
             
             switch(itemId) {
@@ -1349,6 +1348,7 @@
             bingoCard = shuffled.slice(0, 9);
             checkedBingo.clear();
             const grid = document.getElementById('bingoGrid');
+            if (!grid) return;
             grid.innerHTML = '';
             bingoCard.forEach(item => {
                 const cell = document.createElement('div');
@@ -1366,6 +1366,7 @@
         }
 
         function checkBingo() {
+            if (!bingoCard.length) return;
             const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
             for (const line of lines) {
                 if (line.every(i => checkedBingo.has(bingoCard[i]))) {
