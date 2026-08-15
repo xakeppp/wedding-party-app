@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Свадьба Рустама и Лизы</title>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK для Realtime Database -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        /* Все стили остаются такими же */
         * {
             margin: 0;
             padding: 0;
@@ -758,10 +757,11 @@
     </div>
 
     <script>
-        // Firebase конфигурация - ЗАМЕНИ НА СВОИ ДАННЫЕ!
-       const firebaseConfig = {
-  apiKey: "AIzaSyDPyg2vmUXjfwevvbIouhb3dsXedrIuW4A",
+        // Firebase конфигурация для Realtime Database
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPyg2vmUXjfwevvbIouhb3dsXedrIuW4A",
   authDomain: "wedding-party-app-ae1f3.firebaseapp.com",
+  databaseURL: "https://wedding-party-app-ae1f3-default-rtdb.firebaseio.com",
   projectId: "wedding-party-app-ae1f3",
   storageBucket: "wedding-party-app-ae1f3.firebasestorage.app",
   messagingSenderId: "738985448882",
@@ -771,7 +771,9 @@
         
         // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const database = firebase.database();
+        
+        console.log('Firebase Realtime Database подключена!');
         
         // Конфигурация
         const ADMIN_CODES = {
@@ -839,7 +841,7 @@
         let currentRoom = 'main';
         let bingoCard = [];
         let checkedBingo = new Set();
-        let unsubscribeMessages = null;
+        let messagesRef = null;
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
@@ -945,25 +947,24 @@
             }
         }
 
-        // Отправка сообщений в Firebase
+        // Отправка сообщений в Realtime Database
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (!text || !currentUser) return;
             
-            db.collection('messages').add({
+            database.ref('messages').push({
                 userId: currentUser.id,
                 userName: currentUser.name,
                 text: text,
                 emoji: currentUser.emoji,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestamp: Date.now(),
                 room: currentRoom
             }).then(() => {
-                console.log('Сообщение отправлено');
+                console.log('Сообщение отправлено!');
                 input.value = '';
                 
-                // Начисляем монеты
                 if (currentUser.coins < 1500) {
                     currentUser.coins += 5;
                     updateBalance();
@@ -979,49 +980,51 @@
             sendMessage();
         }
 
-        // Загрузка сообщений из Firebase
+        // Загрузка сообщений из Realtime Database
         function loadMessages() {
-            if (unsubscribeMessages) {
-                unsubscribeMessages();
+            if (messagesRef) {
+                messagesRef.off();
             }
             
             const messagesDiv = document.getElementById('messages');
             messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;">Загрузка сообщений...</div>';
             
-            unsubscribeMessages = db.collection('messages')
-                .where('room', '==', currentRoom)
-                .orderBy('timestamp', 'asc')
-                .limitToLast(100)
-                .onSnapshot((snapshot) => {
-                    messagesDiv.innerHTML = '';
+            messagesRef = database.ref('messages').orderByChild('timestamp').limitToLast(100);
+            
+            messagesRef.on('value', (snapshot) => {
+                messagesDiv.innerHTML = '';
+                
+                snapshot.forEach((childSnapshot) => {
+                    const msg = childSnapshot.val();
                     
-                    snapshot.forEach((doc) => {
-                        const msg = doc.data();
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
-                        
-                        const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString('ru-RU', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }) : '';
-                        
-                        messageDiv.innerHTML = `
-                            <div class="message-header">
-                                <span>${msg.emoji || '🎉'}</span>
-                                <span class="message-user">${msg.userName}</span>
-                                <span class="message-time">${time}</span>
-                            </div>
-                            <div class="message-text">${msg.text}</div>
-                        `;
-                        
-                        messagesDiv.appendChild(messageDiv);
-                    });
+                    // Фильтруем по комнате
+                    if (msg.room !== currentRoom) return;
                     
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                }, (error) => {
-                    console.error('Ошибка загрузки:', error);
-                    messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Ошибка загрузки сообщений</div>';
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+                    
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '';
+                    
+                    messageDiv.innerHTML = `
+                        <div class="message-header">
+                            <span>${msg.emoji || '🎉'}</span>
+                            <span class="message-user">${msg.userName}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-text">${msg.text}</div>
+                    `;
+                    
+                    messagesDiv.appendChild(messageDiv);
                 });
+                
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, (error) => {
+                console.error('Ошибка загрузки:', error);
+                messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Ошибка загрузки сообщений</div>';
+            });
         }
 
         function generateToast() {
@@ -1195,12 +1198,14 @@
         }
 
         function logout() {
-            if (unsubscribeMessages) {
-                unsubscribeMessages();
+            if (messagesRef) {
+                messagesRef.off();
             }
             localStorage.removeItem('wedding_user');
             location.reload();
         }
+        
+        console.log('Приложение готово к работе!');
     </script>
 </body>
 </html>
