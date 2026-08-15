@@ -64,24 +64,43 @@ let currentUser = null;
 let currentRoom = 'main';
 let bingoCard = [];
 let checkedBingo = new Set();
+let messages = [];
 
 // Инициализация при загрузке
-window.onload = function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Загружаем сообщения из localStorage
+    const savedMessages = localStorage.getItem('wedding_messages');
+    if (savedMessages) {
+        messages = JSON.parse(savedMessages);
+    }
+    
+    // Проверяем, есть ли сохраненный пользователь
     const savedUser = localStorage.getItem('wedding_user');
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
         showMainScreen();
     }
-};
+});
 
 // Вход
 function login() {
-    const name = document.getElementById('userName').value.trim();
-    const code = document.getElementById('secretCode').value.toUpperCase();
+    console.log('Функция login вызвана');
+    
+    const nameInput = document.getElementById('userName');
+    const codeInput = document.getElementById('secretCode');
     const errorDiv = document.getElementById('loginError');
+    
+    const name = nameInput.value.trim();
+    const code = codeInput.value.toUpperCase().trim();
+    
+    console.log('Имя:', name, 'Код:', code);
+    
+    // Очищаем ошибку
+    errorDiv.textContent = '';
     
     if (!name) {
         errorDiv.textContent = 'Введи имя!';
+        nameInput.focus();
         return;
     }
     
@@ -107,6 +126,7 @@ function login() {
         bonusCoins += MONEY_CODES[code];
     }
     
+    // Создаем пользователя
     currentUser = {
         id: 'user_' + Date.now(),
         name: name,
@@ -116,45 +136,75 @@ function login() {
         createdAt: Date.now()
     };
     
+    console.log('Создан пользователь:', currentUser);
+    
+    // Сохраняем в localStorage
     localStorage.setItem('wedding_user', JSON.stringify(currentUser));
+    
+    // Показываем главный экран
     showMainScreen();
 }
 
 // Показать главный экран
 function showMainScreen() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainScreen').style.display = 'block';
+    console.log('Показываем главный экран');
     
+    // Скрываем экран входа
+    document.getElementById('loginScreen').style.display = 'none';
+    
+    // Показываем главный экран
+    document.getElementById('mainScreen').style.display = 'flex';
+    
+    // Обновляем информацию
     document.getElementById('userEmoji').textContent = currentUser.emoji;
     document.getElementById('displayName').textContent = currentUser.name;
     document.getElementById('balance').textContent = currentUser.coins;
+    document.getElementById('profileEmoji').textContent = currentUser.emoji;
+    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileBalance').textContent = currentUser.coins;
     
-    if (currentUser.role === 'admin' || currentUser.role === 'moderator') {
+    // Статус
+    let status = 'Гость 🎉';
+    if (currentUser.role === 'admin') {
+        status = 'Организатор 👑';
+        document.getElementById('adminBadge').style.display = 'inline';
+        document.getElementById('adminPanel').style.display = 'block';
+    } else if (currentUser.role === 'moderator') {
+        status = 'Свидетель 🎩';
         document.getElementById('adminBadge').style.display = 'inline';
         document.getElementById('adminPanel').style.display = 'block';
     }
+    document.getElementById('profileStatus').textContent = status;
     
+    // Загружаем данные
     loadMessages();
     generateBingoCard();
     loadRooms();
-    updateProfile();
 }
 
 // Переключение вкладок
 function switchTab(tabName) {
+    console.log('Переключаем вкладку:', tabName);
+    
     const tabs = ['chat', 'games', 'rooms', 'profile'];
     tabs.forEach(tab => {
-        document.getElementById(tab + 'Tab').style.display = tab === tabName ? 'block' : 'none';
+        const tabElement = document.getElementById(tab + 'Tab');
+        if (tabElement) {
+            tabElement.style.display = tab === tabName ? 'block' : 'none';
+        }
     });
     
+    // Обновляем активную вкладку
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.toggle('active', tab.textContent.includes(getTabEmoji(tabName)));
+        tab.classList.remove('active');
     });
-}
-
-function getTabEmoji(tabName) {
-    const emojis = { chat: '💬', games: '🎮', rooms: '🚪', profile: '👤' };
-    return emojis[tabName];
+    
+    // Находим нужную кнопку
+    const buttons = document.querySelectorAll('.tab');
+    const tabIndex = tabs.indexOf(tabName);
+    if (buttons[tabIndex]) {
+        buttons[tabIndex].classList.add('active');
+    }
 }
 
 // Отправка сообщений
@@ -174,12 +224,14 @@ function sendMessage() {
         room: currentRoom
     };
     
-    // Сохраняем в localStorage (замени на Firebase если нужно)
-    const messages = JSON.parse(localStorage.getItem('wedding_messages') || '[]');
+    // Добавляем сообщение
     messages.push(message);
     localStorage.setItem('wedding_messages', JSON.stringify(messages));
     
+    // Очищаем input
     input.value = '';
+    
+    // Обновляем чат
     loadMessages();
     
     // Начисляем монеты
@@ -191,39 +243,44 @@ function sendMessage() {
 
 // Быстрые сообщения
 function quickMessage(text) {
-    document.getElementById('messageInput').value = text;
-    sendMessage();
+    const input = document.getElementById('messageInput');
+    if (input) {
+        input.value = text;
+        sendMessage();
+    }
 }
 
 // Загрузка сообщений
 function loadMessages() {
-    const messages = JSON.parse(localStorage.getItem('wedding_messages') || '[]');
     const messagesDiv = document.getElementById('messages');
+    if (!messagesDiv) return;
+    
     messagesDiv.innerHTML = '';
     
-    messages
+    const filteredMessages = messages
         .filter(msg => msg.room === currentRoom)
-        .slice(-50)
-        .forEach(msg => {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
-            
-            const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span>${msg.emoji}</span>
-                    <span class="message-user">${msg.userName}</span>
-                    <span class="message-time">${time}</span>
-                </div>
-                <div class="message-text">${msg.text}</div>
-            `;
-            
-            messagesDiv.appendChild(messageDiv);
+        .slice(-50);
+    
+    filteredMessages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+        
+        const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
+        
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <span>${msg.emoji}</span>
+                <span class="message-user">${msg.userName}</span>
+                <span class="message-time">${time}</span>
+            </div>
+            <div class="message-text">${msg.text}</div>
+        `;
+        
+        messagesDiv.appendChild(messageDiv);
+    });
     
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
@@ -239,23 +296,31 @@ function generateToast() {
     updateBalance();
     
     const toast = TOASTS[Math.floor(Math.random() * TOASTS.length)];
-    document.getElementById('messageInput').value = toast;
-    sendMessage();
+    const input = document.getElementById('messageInput');
+    if (input) {
+        input.value = toast;
+        sendMessage();
+    }
 }
 
 // Бинго
 function generateBingoCard() {
     const shuffled = [...BINGO_ITEMS].sort(() => Math.random() - 0.5);
     bingoCard = shuffled.slice(0, 9);
+    checkedBingo.clear();
     
     const bingoGrid = document.getElementById('bingoGrid');
+    if (!bingoGrid) return;
+    
     bingoGrid.innerHTML = '';
     
     bingoCard.forEach(item => {
         const cell = document.createElement('div');
         cell.className = 'bingo-cell';
         cell.textContent = item;
-        cell.onclick = () => toggleBingoItem(item, cell);
+        cell.onclick = function() {
+            toggleBingoItem(item, cell);
+        };
         bingoGrid.appendChild(cell);
     });
 }
@@ -273,6 +338,8 @@ function toggleBingoItem(item, cell) {
 }
 
 function checkBingo() {
+    if (!bingoCard.length) return;
+    
     const lines = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -285,7 +352,6 @@ function checkBingo() {
             updateBalance();
             alert('🎉 БИНГО! Ты выиграл 1000 монет!');
             generateBingoCard();
-            checkedBingo.clear();
             break;
         }
     }
@@ -310,19 +376,23 @@ function startBattle() {
     const question = questions[Math.floor(Math.random() * questions.length)];
     const battleArea = document.getElementById('battleArea');
     
-    battleArea.innerHTML = `
-        <h4>${question.q}</h4>
-        ${question.options.map((opt, i) => `
-            <button onclick="voteBattle(${i})" class="btn-secondary" style="margin: 5px; width: 100%;">
-                ${opt}
-            </button>
-        `).join('')}
-    `;
+    if (battleArea) {
+        battleArea.innerHTML = `
+            <h4 style="margin: 15px 0;">${question.q}</h4>
+            ${question.options.map((opt, i) => `
+                <button onclick="voteBattle(${i})" class="btn-game" style="margin: 5px; width: 100%;">
+                    ${opt}
+                </button>
+            `).join('')}
+        `;
+    }
 }
 
 function voteBattle(optionIndex) {
     const battleArea = document.getElementById('battleArea');
-    battleArea.innerHTML = '<p>Голос учтен! ✅</p>';
+    if (battleArea) {
+        battleArea.innerHTML = '<p style="margin: 15px 0;">Голос учтен! ✅</p>';
+    }
     currentUser.coins += 50;
     updateBalance();
 }
@@ -338,22 +408,31 @@ function randomChallenge() {
     updateBalance();
     
     const challenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
-    document.getElementById('challengeResult').innerHTML = `
-        <h4>Твое задание:</h4>
-        <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
-        <button onclick="completeChallenge()" class="btn-primary">Готово! +200🪙</button>
-    `;
+    const challengeResult = document.getElementById('challengeResult');
+    
+    if (challengeResult) {
+        challengeResult.innerHTML = `
+            <h4 style="margin: 15px 0;">Твое задание:</h4>
+            <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
+            <button onclick="completeChallenge()" class="btn-game">Готово! +200🪙</button>
+        `;
+    }
 }
 
 function completeChallenge() {
     currentUser.coins += 200;
     updateBalance();
-    document.getElementById('challengeResult').innerHTML = '<p>Красавчик! 🎉</p>';
+    const challengeResult = document.getElementById('challengeResult');
+    if (challengeResult) {
+        challengeResult.innerHTML = '<p style="margin: 15px 0;">Красавчик! 🎉</p>';
+    }
 }
 
 // Комнаты
 function loadRooms() {
     const roomsList = document.getElementById('roomsList');
+    if (!roomsList) return;
+    
     const rooms = [
         { id: 'main', name: '💬 Общий чат' },
         { id: 'toasts', name: '🥂 Тосты и поздравления' },
@@ -370,40 +449,33 @@ function loadRooms() {
 function switchRoom(roomId) {
     currentRoom = roomId;
     loadMessages();
-    alert('Комната: ' + roomId);
 }
 
 function joinSecretRoom() {
-    const password = document.getElementById('roomPassword').value.toUpperCase();
+    const passwordInput = document.getElementById('roomPassword');
+    const password = passwordInput.value.toUpperCase().trim();
     
     if (SECRET_ROOMS[password]) {
         const room = SECRET_ROOMS[password];
         currentRoom = password.toLowerCase();
         loadMessages();
         alert('Вы вошли в комнату: ' + room.name);
-        document.getElementById('roomPassword').value = '';
+        passwordInput.value = '';
     } else {
         alert('Неверный пароль! 😜');
     }
 }
 
-// Профиль
-function updateProfile() {
-    document.getElementById('profileName').textContent = currentUser.name;
-    document.getElementById('profileBalance').textContent = currentUser.coins;
-    document.getElementById('profileStatus').textContent = 
-        currentUser.role === 'admin' ? 'Организатор 👑' :
-        currentUser.role === 'moderator' ? 'Свидетель 🎩' : 'Гость 🎉';
-}
-
+// Обновление баланса
 function updateBalance() {
     document.getElementById('balance').textContent = currentUser.coins;
+    document.getElementById('profileBalance').textContent = currentUser.coins;
     localStorage.setItem('wedding_user', JSON.stringify(currentUser));
 }
 
 // Админ функции
 function giveCoinsToAll() {
-    if (currentUser.role === 'admin') {
+    if (currentUser.role === 'admin' || currentUser.role === 'moderator') {
         alert('Всем гостям начислено по 500 монет! 🎉');
     }
 }
@@ -413,3 +485,7 @@ function logout() {
     localStorage.removeItem('wedding_user');
     location.reload();
 }
+
+// Для отладки - выводим в консоль
+console.log('Скрипт загружен успешно!');
+console.log('Доступные функции:', Object.keys(window).filter(k => typeof window[k] === 'function'));
