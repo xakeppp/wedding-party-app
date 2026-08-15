@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Свадьба Рустама и Лизы</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
-        /* Все стили здесь */
+        /* Все стили остаются такими же */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +24,6 @@
             --gradient-1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --gradient-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --gradient-3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --gradient-4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
         body {
@@ -46,7 +50,6 @@
             flex-direction: column;
         }
 
-        /* Экран входа */
         .login-box {
             padding: 40px 30px;
             text-align: center;
@@ -175,7 +178,6 @@
             font-size: 24px;
         }
 
-        /* Шапка */
         .header {
             display: flex;
             justify-content: space-between;
@@ -225,7 +227,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Вкладки */
         .tabs {
             display: flex;
             background: white;
@@ -271,7 +272,6 @@
             overflow-y: auto;
         }
 
-        /* Чат */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -399,7 +399,6 @@
             transform: scale(1.1);
         }
 
-        /* Игры */
         .section-title {
             font-size: 28px;
             margin-bottom: 20px;
@@ -490,7 +489,6 @@
             font-weight: bold;
         }
 
-        /* Комнаты */
         .room-card {
             padding: 20px;
             background: white;
@@ -526,7 +524,6 @@
             border-color: var(--primary);
         }
 
-        /* Профиль */
         .profile-card {
             text-align: center;
             padding: 30px;
@@ -591,7 +588,6 @@
             transform: translateY(-2px);
         }
 
-        /* Адаптивность */
         @media (max-width: 640px) {
             .screen {
                 margin: 0;
@@ -670,7 +666,6 @@
             </div>
         </div>
 
-        <!-- Вкладки -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('chat')">
                 <span class="tab-icon">💬</span>
@@ -690,7 +685,6 @@
             </button>
         </div>
 
-        <!-- Чат -->
         <div id="chatTab" class="tab-content">
             <div class="chat-container">
                 <div id="messages" class="messages"></div>
@@ -709,7 +703,6 @@
             </div>
         </div>
 
-        <!-- Игры -->
         <div id="gamesTab" class="tab-content" style="display:none">
             <h2 class="section-title">🎮 Игры и развлечения</h2>
             <div class="games-grid">
@@ -735,7 +728,6 @@
             </div>
         </div>
 
-        <!-- Комнаты -->
         <div id="roomsTab" class="tab-content" style="display:none">
             <h2 class="section-title">🚪 Комнаты</h2>
             <div id="roomsList"></div>
@@ -745,7 +737,6 @@
             </div>
         </div>
 
-        <!-- Профиль -->
         <div id="profileTab" class="tab-content" style="display:none">
             <h2 class="section-title">👤 Профиль</h2>
             <div class="profile-card">
@@ -767,6 +758,20 @@
     </div>
 
     <script>
+        // Firebase конфигурация - ЗАМЕНИ НА СВОИ ДАННЫЕ!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqK5QZxDqK5QZxDqK5QZxDqK5QZxDqK5QZ",
+            authDomain: "wedding-party-app.firebaseapp.com",
+            projectId: "wedding-party-app",
+            storageBucket: "wedding-party-app.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+        
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
         // Конфигурация
         const ADMIN_CODES = {
             'RUSTIK': { name: 'Рустам', role: 'admin', emoji: '👑' },
@@ -833,19 +838,10 @@
         let currentRoom = 'main';
         let bingoCard = [];
         let checkedBingo = new Set();
-        let messages = [];
+        let unsubscribeMessages = null;
 
-        // Инициализация при загрузке
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM загружен');
-            
-            // Загружаем сообщения из localStorage
-            const savedMessages = localStorage.getItem('wedding_messages');
-            if (savedMessages) {
-                messages = JSON.parse(savedMessages);
-            }
-            
-            // Проверяем, есть ли сохраненный пользователь
             const savedUser = localStorage.getItem('wedding_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -855,8 +851,6 @@
 
         // Вход
         function login() {
-            console.log('Функция login вызвана');
-            
             const nameInput = document.getElementById('userName');
             const codeInput = document.getElementById('secretCode');
             const errorDiv = document.getElementById('loginError');
@@ -864,9 +858,6 @@
             const name = nameInput.value.trim();
             const code = codeInput.value.toUpperCase().trim();
             
-            console.log('Имя:', name, 'Код:', code);
-            
-            // Очищаем ошибку
             errorDiv.textContent = '';
             
             if (!name) {
@@ -879,7 +870,6 @@
             let emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
             let bonusCoins = 0;
             
-            // Проверяем админ коды
             if (code && ADMIN_CODES[code]) {
                 const adminData = ADMIN_CODES[code];
                 if (adminData.name.toLowerCase() === name.toLowerCase()) {
@@ -892,12 +882,10 @@
                 }
             }
             
-            // Проверяем денежные коды
             if (code && MONEY_CODES[code]) {
                 bonusCoins += MONEY_CODES[code];
             }
             
-            // Создаем пользователя
             currentUser = {
                 id: 'user_' + Date.now(),
                 name: name,
@@ -907,26 +895,14 @@
                 createdAt: Date.now()
             };
             
-            console.log('Создан пользователь:', currentUser);
-            
-            // Сохраняем в localStorage
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
-            
-            // Показываем главный экран
             showMainScreen();
         }
 
-        // Показать главный экран
         function showMainScreen() {
-            console.log('Показываем главный экран');
-            
-            // Скрываем экран входа
             document.getElementById('loginScreen').style.display = 'none';
-            
-            // Показываем главный экран
             document.getElementById('mainScreen').style.display = 'flex';
             
-            // Обновляем информацию
             document.getElementById('userEmoji').textContent = currentUser.emoji;
             document.getElementById('displayName').textContent = currentUser.name;
             document.getElementById('balance').textContent = currentUser.coins;
@@ -934,7 +910,6 @@
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileBalance').textContent = currentUser.coins;
             
-            // Статус
             let status = 'Гость 🎉';
             if (currentUser.role === 'admin') {
                 status = 'Организатор 👑';
@@ -947,30 +922,21 @@
             }
             document.getElementById('profileStatus').textContent = status;
             
-            // Загружаем данные
             loadMessages();
             generateBingoCard();
             loadRooms();
         }
 
-        // Переключение вкладок
         function switchTab(tabName) {
-            console.log('Переключаем вкладку:', tabName);
-            
             const tabs = ['chat', 'games', 'rooms', 'profile'];
             tabs.forEach(tab => {
-                const tabElement = document.getElementById(tab + 'Tab');
-                if (tabElement) {
-                    tabElement.style.display = tab === tabName ? 'block' : 'none';
-                }
+                document.getElementById(tab + 'Tab').style.display = tab === tabName ? 'block' : 'none';
             });
             
-            // Обновляем активную вкладку
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // Находим нужную кнопку
             const buttons = document.querySelectorAll('.tab');
             const tabIndex = tabs.indexOf(tabName);
             if (buttons[tabIndex]) {
@@ -978,85 +944,85 @@
             }
         }
 
-        // Отправка сообщений
+        // Отправка сообщений в Firebase
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
-            if (!text) return;
+            if (!text || !currentUser) return;
             
-            const message = {
-                id: Date.now(),
+            db.collection('messages').add({
                 userId: currentUser.id,
                 userName: currentUser.name,
                 text: text,
                 emoji: currentUser.emoji,
-                timestamp: Date.now(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 room: currentRoom
-            };
-            
-            // Добавляем сообщение
-            messages.push(message);
-            localStorage.setItem('wedding_messages', JSON.stringify(messages));
-            
-            // Очищаем input
-            input.value = '';
-            
-            // Обновляем чат
-            loadMessages();
-            
-            // Начисляем монеты
-            if (currentUser.coins < 1500) {
-                currentUser.coins += 5;
-                updateBalance();
-            }
-        }
-
-        // Быстрые сообщения
-        function quickMessage(text) {
-            const input = document.getElementById('messageInput');
-            if (input) {
-                input.value = text;
-                sendMessage();
-            }
-        }
-
-        // Загрузка сообщений
-        function loadMessages() {
-            const messagesDiv = document.getElementById('messages');
-            if (!messagesDiv) return;
-            
-            messagesDiv.innerHTML = '';
-            
-            const filteredMessages = messages
-                .filter(msg => msg.room === currentRoom)
-                .slice(-50);
-            
-            filteredMessages.forEach(msg => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+            }).then(() => {
+                console.log('Сообщение отправлено');
+                input.value = '';
                 
-                const time = new Date(msg.timestamp).toLocaleTimeString('ru-RU', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <span>${msg.emoji}</span>
-                        <span class="message-user">${msg.userName}</span>
-                        <span class="message-time">${time}</span>
-                    </div>
-                    <div class="message-text">${msg.text}</div>
-                `;
-                
-                messagesDiv.appendChild(messageDiv);
+                // Начисляем монеты
+                if (currentUser.coins < 1500) {
+                    currentUser.coins += 5;
+                    updateBalance();
+                }
+            }).catch(error => {
+                console.error('Ошибка отправки:', error);
+                alert('Ошибка отправки сообщения');
             });
-            
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Генерация тоста
+        function quickMessage(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        // Загрузка сообщений из Firebase
+        function loadMessages() {
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+            }
+            
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;">Загрузка сообщений...</div>';
+            
+            unsubscribeMessages = db.collection('messages')
+                .where('room', '==', currentRoom)
+                .orderBy('timestamp', 'asc')
+                .limitToLast(100)
+                .onSnapshot((snapshot) => {
+                    messagesDiv.innerHTML = '';
+                    
+                    snapshot.forEach((doc) => {
+                        const msg = doc.data();
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message' + (msg.userId === currentUser.id ? ' own' : '');
+                        
+                        const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString('ru-RU', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) : '';
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-header">
+                                <span>${msg.emoji || '🎉'}</span>
+                                <span class="message-user">${msg.userName}</span>
+                                <span class="message-time">${time}</span>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                        `;
+                        
+                        messagesDiv.appendChild(messageDiv);
+                    });
+                    
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, (error) => {
+                    console.error('Ошибка загрузки:', error);
+                    messagesDiv.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Ошибка загрузки сообщений</div>';
+                });
+        }
+
         function generateToast() {
             if (currentUser.coins < 50) {
                 alert('Недостаточно монет! Нужно 50 🪙');
@@ -1067,22 +1033,16 @@
             updateBalance();
             
             const toast = TOASTS[Math.floor(Math.random() * TOASTS.length)];
-            const input = document.getElementById('messageInput');
-            if (input) {
-                input.value = toast;
-                sendMessage();
-            }
+            document.getElementById('messageInput').value = toast;
+            sendMessage();
         }
 
-        // Бинго
         function generateBingoCard() {
             const shuffled = [...BINGO_ITEMS].sort(() => Math.random() - 0.5);
             bingoCard = shuffled.slice(0, 9);
             checkedBingo.clear();
             
             const bingoGrid = document.getElementById('bingoGrid');
-            if (!bingoGrid) return;
-            
             bingoGrid.innerHTML = '';
             
             bingoCard.forEach(item => {
@@ -1109,8 +1069,6 @@
         }
 
         function checkBingo() {
-            if (!bingoCard.length) return;
-            
             const lines = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
                 [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -1128,7 +1086,6 @@
             }
         }
 
-        // Битва полов
         function startBattle() {
             if (currentUser.coins < 300) {
                 alert('Недостаточно монет! Нужно 300 🪙');
@@ -1147,28 +1104,23 @@
             const question = questions[Math.floor(Math.random() * questions.length)];
             const battleArea = document.getElementById('battleArea');
             
-            if (battleArea) {
-                battleArea.innerHTML = `
-                    <h4 style="margin: 15px 0;">${question.q}</h4>
-                    ${question.options.map((opt, i) => `
-                        <button onclick="voteBattle(${i})" class="btn-game" style="margin: 5px; width: 100%;">
-                            ${opt}
-                        </button>
-                    `).join('')}
-                `;
-            }
+            battleArea.innerHTML = `
+                <h4 style="margin: 15px 0;">${question.q}</h4>
+                ${question.options.map((opt, i) => `
+                    <button onclick="voteBattle(${i})" class="btn-game" style="margin: 5px; width: 100%;">
+                        ${opt}
+                    </button>
+                `).join('')}
+            `;
         }
 
         function voteBattle(optionIndex) {
             const battleArea = document.getElementById('battleArea');
-            if (battleArea) {
-                battleArea.innerHTML = '<p style="margin: 15px 0;">Голос учтен! ✅</p>';
-            }
+            battleArea.innerHTML = '<p style="margin: 15px 0;">Голос учтен! ✅</p>';
             currentUser.coins += 50;
             updateBalance();
         }
 
-        // Случайный конкурс
         function randomChallenge() {
             if (currentUser.coins < 100) {
                 alert('Недостаточно монет! Нужно 100 🪙');
@@ -1181,29 +1133,21 @@
             const challenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
             const challengeResult = document.getElementById('challengeResult');
             
-            if (challengeResult) {
-                challengeResult.innerHTML = `
-                    <h4 style="margin: 15px 0;">Твое задание:</h4>
-                    <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
-                    <button onclick="completeChallenge()" class="btn-game">Готово! +200🪙</button>
-                `;
-            }
+            challengeResult.innerHTML = `
+                <h4 style="margin: 15px 0;">Твое задание:</h4>
+                <p style="font-size: 18px; margin: 20px 0;">${challenge}</p>
+                <button onclick="completeChallenge()" class="btn-game">Готово! +200🪙</button>
+            `;
         }
 
         function completeChallenge() {
             currentUser.coins += 200;
             updateBalance();
-            const challengeResult = document.getElementById('challengeResult');
-            if (challengeResult) {
-                challengeResult.innerHTML = '<p style="margin: 15px 0;">Красавчик! 🎉</p>';
-            }
+            document.getElementById('challengeResult').innerHTML = '<p style="margin: 15px 0;">Красавчик! 🎉</p>';
         }
 
-        // Комнаты
         function loadRooms() {
             const roomsList = document.getElementById('roomsList');
-            if (!roomsList) return;
-            
             const rooms = [
                 { id: 'main', name: '💬 Общий чат' },
                 { id: 'toasts', name: '🥂 Тосты и поздравления' },
@@ -1237,27 +1181,25 @@
             }
         }
 
-        // Обновление баланса
         function updateBalance() {
             document.getElementById('balance').textContent = currentUser.coins;
             document.getElementById('profileBalance').textContent = currentUser.coins;
             localStorage.setItem('wedding_user', JSON.stringify(currentUser));
         }
 
-        // Админ функции
         function giveCoinsToAll() {
             if (currentUser.role === 'admin' || currentUser.role === 'moderator') {
                 alert('Всем гостям начислено по 500 монет! 🎉');
             }
         }
 
-        // Выход
         function logout() {
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+            }
             localStorage.removeItem('wedding_user');
             location.reload();
         }
-
-        console.log('Скрипт загружен успешно!');
     </script>
 </body>
 </html>
